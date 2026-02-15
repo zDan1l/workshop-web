@@ -22,40 +22,21 @@
 </head>
 <body>
     <div class="container-scroller">
-        {{-- ========================================
-            IV. NAVBAR
-        ======================================== --}}
         @include('partials.navbar')
         
         <div class="container-fluid page-body-wrapper">
-            {{-- ========================================
-                V. SIDEBAR
-            ======================================== --}}
             @include('partials.sidebar')
             
             <!-- Main Panel -->
             <div class="main-panel">
                 <div class="content-wrapper">
-                    {{-- ========================================
-                        VI. CONTENT
-                        - Konten utama halaman
-                        - Programmer menambahkan dengan @section('content')
-                    ======================================== --}}
                     @yield('content')
                 </div>
-                
-                {{-- ========================================
-                    VII. FOOTER
-                ======================================== --}}
                 @include('partials.footer')
             </div>
         </div>
     </div>
 
-    {{-- ========================================
-        VIII. JAVASCRIPT GLOBAL
-        - JS yang berlaku untuk SEMUA halaman
-    ======================================== --}}
     @include('partials.scripts')
 
     {{-- ========================================
