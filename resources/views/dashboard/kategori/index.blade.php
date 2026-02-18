@@ -40,7 +40,6 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Kategori</th>
-                                    <th>Jumlah Buku</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -49,7 +48,6 @@
                                     <tr>
                                         <td>{{ $kategoris->firstItem() + $index }}</td>
                                         <td>{{ $kategori->nama_kategori }}</td>
-                                        <td>{{ $kategori->bukus->count() }}</td>
                                         <td>
                                             <a href="{{ route('kategori.show', $kategori) }}" class="btn btn-info btn-sm">
                                                 <i class="mdi mdi-eye"></i>
@@ -82,3 +80,4 @@
         </div>
     </div>
 @endsection
+
