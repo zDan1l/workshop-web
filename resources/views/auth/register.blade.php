@@ -33,13 +33,6 @@
             <div class="form-group">
                 <input type="password" name="password_confirmation" class="form-control form-control-lg" placeholder="Confirm Password" required>
             </div>
-            <div class="mb-4">
-                <div class="form-check">
-                    <label class="form-check-label text-muted">
-                        <input type="checkbox" name="terms" class="form-check-input" required> I agree to all Terms & Conditions
-                    </label>
-                </div>
-            </div>
             <div class="mt-3 d-grid gap-2">
                 <button type="submit" class="btn btn-block btn-gradient-primary btn-lg font-weight-medium auth-form-btn">SIGN UP</button>
             </div>
