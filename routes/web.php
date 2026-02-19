@@ -7,12 +7,16 @@ use App\Http\Controllers\KategoriController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 // Google OAuth Routes
-Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
-Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
+// OTP Verification Routes
+Route::get('auth/otp', [AuthController::class, 'showOtpForm'])->name('otp.verify.form');
+Route::post('auth/otp', [AuthController::class, 'verifyOtp'])->name('otp.verify');
 
 // Routes khusus admin
 Route::middleware('admin')->group(function () {
