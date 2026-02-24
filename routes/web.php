@@ -4,6 +4,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\PdfController;
+use App\Http\Controllers\SertifikatController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -33,4 +35,31 @@ Route::middleware('user')->group(function () {
     
     // Buku - hanya index dan show untuk semua user
     Route::resource('buku', BukuController::class)->only(['index', 'show']);
+});
+
+// =============================================
+// PDF Generator Routes
+// =============================================
+Route::middleware('user')->prefix('pdf')->name('pdf.')->group(function () {
+    // Form gabungan (lama)
+    Route::get('/undangan',          [PdfController::class, 'undangan'])->name('undangan');
+
+    // ---- Sertifikat ----
+    Route::get('/sertifikat',        [PdfController::class, 'sertifikatForm'])->name('sertifikat.form');
+    Route::post('/sertifikat',       [PdfController::class, 'sertifikat'])->name('sertifikat');
+    Route::get('/preview/sertifikat',[PdfController::class, 'previewSertifikat'])->name('preview.sertifikat');
+
+    // ---- Undangan ----
+});
+
+// =============================================
+// Sertifikat dari Template PDF (FPDI)
+// =============================================
+Route::middleware('user')->prefix('sertifikat')->name('sertifikat.')->group(function () {
+    Route::get('/',                  [SertifikatController::class, 'form'])->name('form');
+    Route::post('/generate',         [SertifikatController::class, 'generate'])->name('generate');
+    Route::get('/preview',           [SertifikatController::class, 'preview'])->name('preview');
+    Route::get('/kalibrasi',         [SertifikatController::class, 'kalibrasi'])->name('kalibrasi');
+    Route::post('/kalibrasi',        [SertifikatController::class, 'simpanKalibrasi'])->name('simpan-kalibrasi');
+    Route::get('/preview-kalibrasi', [SertifikatController::class, 'previewKalibrasi'])->name('preview-kalibrasi');
 });

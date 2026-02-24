@@ -39,5 +39,26 @@
         </ul>
       </div>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="collapse" href="#menu-pdf" aria-expanded="false" aria-controls="menu-pdf">
+        <span class="menu-title">Generator PDF</span>
+        <i class="menu-arrow"></i>
+        <i class="mdi mdi-file-pdf menu-icon"></i>
+      </a>
+      <div class="collapse" id="menu-pdf">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('sertifikat.form') }}">
+              <i class="mdi mdi-certificate me-1"></i> Sertifikat
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('pdf.undangan') }}">
+              <i class="mdi mdi-email-outline me-1"></i> Undangan
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
   </ul>
 </nav>
