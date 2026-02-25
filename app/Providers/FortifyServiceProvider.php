@@ -39,13 +39,34 @@ class FortifyServiceProvider extends ServiceProvider
             return view('auth.register'); // sesuaikan dengan path file kamu
         });
 
+        Fortify::requestPasswordResetLinkView(function () {
+            return view('auth.forgot-password');
+        });
+
+        Fortify::resetPasswordView(function ($request) {
+            return view('auth.reset-password', ['request' => $request]);
+        });
+
         // custom login
         Fortify::authenticateUsing(function (Request $request) {
             // 1. Cari user berdasarkan email (atau field lain seperti username)
             $user = User::where('email', $request->email)->first();
 
-            // 2. Verifikasi password dan kondisi tambahan
-            if ($user && Hash::check($request->password, $user->password)) {
+            // 2. Jika user tidak ditemukan
+            if (!$user) {
+                return null; // Login gagal
+            }
+
+            // 3. Cek apakah user terdaftar via Google (punya google_id tapi password tidak cocok)
+            if ($user->google_id && !Hash::check($request->password, $user->password)) {
+                // User terdaftar via Google, arahkan untuk login dengan Google atau reset password
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'email' => ['Akun ini terdaftar melalui Google. Silakan login dengan Google atau reset password terlebih dahulu.'],
+                ]);
+            }
+
+            // 4. Verifikasi password dan kondisi tambahan
+            if (Hash::check($request->password, $user->password)) {
                 
                 // CONTOH CUSTOM LOGIC: Cek apakah user sudah diverifikasi atau aktif
                 // if (!$user->is_active) {

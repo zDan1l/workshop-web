@@ -55,6 +55,9 @@
                     <span class="text-danger">{{ $message }}</span>
                 @enderror
             </div>
+            <div class="d-flex justify-content-end mb-2">
+                <a href="{{ route('password.request') }}" class="text-primary small">Forgot Password?</a>
+            </div>
             <div class="mt-3 d-grid gap-2">
                 <button type="submit" class="btn btn-block btn-gradient-primary btn-lg font-weight-medium auth-form-btn">SIGN IN</button>
             </div>
