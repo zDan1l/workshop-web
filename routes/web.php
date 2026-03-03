@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriController;
@@ -35,6 +36,13 @@ Route::middleware('user')->group(function () {
     
     // Buku - hanya index dan show untuk semua user
     Route::resource('buku', BukuController::class)->only(['index', 'show']);
+    
+    // CRUD Barang
+    Route::resource('barang', BarangController::class);
+    
+    // Print Label Barang
+    Route::get('barang-print/form', [BarangController::class, 'printForm'])->name('barang.print.form');
+    Route::post('barang-print/pdf', [BarangController::class, 'printPdf'])->name('barang.print.pdf');
 });
 
 // =============================================

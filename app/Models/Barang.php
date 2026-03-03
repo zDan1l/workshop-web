@@ -6,6 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Barang extends Model
 {
-    protected $id = "id_barang";
+    protected $primaryKey = "id_barang";
     protected $guarded = [];
 }

@@ -36,6 +36,9 @@
           <li class="nav-item">
             <a class="nav-link" href="{{ route('buku.index') }}">Buku</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('barang.index') }}">Barang</a>
+          </li>
         </ul>
       </div>
     </li>
