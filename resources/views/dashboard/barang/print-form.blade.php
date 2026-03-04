@@ -24,7 +24,7 @@
                 <div class="card-body">
                     <h4 class="card-title">Pilih Barang dan Koordinat Awal</h4>
                     <p class="card-description">
-                        Pilih barang yang akan dicetak dan tentukan posisi awal label pada kertas TnJ No. 108 (5×8)
+                        Pilih barang yang akan dicetak dan tentukan posisi awal label pada kertas (21cm × 16cm, Grid 7×8)
                     </p>
 
                     @if($errors->any())
@@ -74,7 +74,10 @@
                                     <div class="card-body">
                                         <h5 class="text-white mb-3">Informasi Kertas Label</h5>
                                         <p class="text-white mb-2">
-                                            <i class="mdi mdi-label-outline"></i> <strong>Tipe:</strong> TnJ No. 108
+                                            <i class="mdi mdi-label-outline"></i> <strong>Ukuran Kertas:</strong> 21cm × 16cm
+                                        </p>
+                                        <p class="text-white mb-2">
+                                            <i class="mdi mdi-crop-square"></i> <strong>Ukuran Label:</strong> 3cm × 2cm
                                         </p>
                                         <p class="text-white mb-2">
                                             <i class="mdi mdi-grid"></i> <strong>Layout:</strong> 5 Kolom × 8 Baris
@@ -183,7 +186,7 @@
     }
     .label-cell {
         flex: 1;
-        aspect-ratio: 1.4;
+        aspect-ratio: 1.5;  /* 3cm / 2cm = 1.5 */
         border: 2px solid #ddd;
         border-radius: 4px;
         display: flex;
@@ -191,7 +194,7 @@
         justify-content: center;
         background: white;
         transition: all 0.3s;
-        font-size: 12px;
+        font-size: 10px;
         color: #999;
     }
     .label-cell.start {
@@ -264,7 +267,7 @@
                     }
                     
                     currentX++;
-                    if (currentX > 5) {
+                    if (currentX > 5) {  // 5 kolom
                         currentX = 1;
                         currentY++;
                         if (currentY > 8) {

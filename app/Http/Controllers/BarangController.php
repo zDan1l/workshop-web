@@ -83,12 +83,36 @@ class BarangController extends Controller
         $startY = $request->start_y;
 
         // Calculate label positions for 5 columns x 8 rows
-        $labels = $this->calculateLabelPositions($barangs, $startX, $startY);
+        $allLabels = $this->calculateLabelPositions($barangs, $startX, $startY);
+        
+        // Group labels by page (40 labels per page)
+        $pages = [];
+        $currentPage = [];
+        $labelCount = 0;
+        
+        foreach ($allLabels as $label) {
+            // If we're at a new page boundary (y >= 8), start new page
+            if ($label['y'] >= 8) {
+                if (!empty($currentPage)) {
+                    $pages[] = $currentPage;
+                }
+                $currentPage = [];
+                // Reset y to 0 for new page
+                $label['y'] = $label['y'] % 8;
+            }
+            
+            $currentPage[] = $label;
+        }
+        
+        // Add the last page
+        if (!empty($currentPage)) {
+            $pages[] = $currentPage;
+        }
 
-        $pdf = PDF::loadView('dashboard.barang.pdf-labels', compact('labels'));
+        $pdf = PDF::loadView('dashboard.barang.pdf-labels', compact('pages'));
         
         // Set paper size to A4 (210mm x 297mm) which is standard for label TnJ 108
-        $pdf->setPaper('A4', 'portrait');
+        $pdf->setPaper('0,0, 210 * 2.83465, 165 * 2.83465', 'portrait');
         
         return $pdf->stream('label-barang.pdf');
     }
@@ -96,8 +120,8 @@ class BarangController extends Controller
     private function calculateLabelPositions($barangs, $startX, $startY)
     {
         $labels = [];
-        $cols = 5;
-        $rows = 8;
+        $cols = 5;  // 5 kolom
+        $rows = 8;  // 8 baris
         
         // Convert to 0-based index
         $currentX = $startX - 1;
@@ -115,9 +139,7 @@ class BarangController extends Controller
             if ($currentX >= $cols) {
                 $currentX = 0;
                 $currentY++;
-                if ($currentY >= $rows) {
-                    $currentY = 0; // Start new page if needed
-                }
+                // Allow y to go beyond 8 for multiple pages
             }
         }
         

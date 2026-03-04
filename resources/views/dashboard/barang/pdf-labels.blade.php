@@ -5,8 +5,8 @@
     <title>Label Harga Barang</title>
     <style>
         @page {
-            margin: 0;
-            size: A4 portrait;
+            margin: 5mm;  /* Margin tepi kertas */
+            size: 210mm 160mm;  /* 21cm x 16cm */
         }
         
         * {
@@ -17,119 +17,108 @@
         
         body {
             font-family: Arial, sans-serif;
-            width: 210mm;
-            height: 297mm;
         }
         
         .page {
-            width: 210mm;
-            height: 297mm;
-            padding: 8mm 5mm;
             position: relative;
+            width: 200mm;  /* 210mm - (2 × 5mm margin) */
+            height: 150mm; /* 160mm - (2 × 5mm margin) */
+            page-break-after: always;
         }
         
-        .label-grid {
-            display: table;
-            width: 100%;
-            height: 100%;
-            border-collapse: collapse;
+        .page:last-child {
+            page-break-after: auto;
         }
         
-        .label-row {
-            display: table-row;
-            height: 12.5%; /* 100% / 8 rows */
-        }
-        
-        .label-cell {
-            display: table-cell;
-            width: 20%; /* 100% / 5 columns */
-            padding: 2mm;
-            vertical-align: middle;
-            text-align: center;
-            border: 0.5pt dashed #ddd;
+        .label-item {
+            position: absolute;
+            width: 38mm;  /* Label: 3cm */
+            height: 18mm; /* Label: 2cm */
+            padding: 0;
         }
         
         .label-content {
             width: 100%;
             height: 100%;
-            border: 1.5pt solid #000;
-            border-radius: 3mm;
-            padding: 2mm;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            border: 1pt solid #000;
+            border-radius: 1.5mm;
+            padding: 1.5mm;
+            text-align: center;
             background: #ffffff;
+            display: table;
+        }
+        
+        .label-inner {
+            display: table-cell;
+            vertical-align: middle;
         }
         
         .label-content .nama {
-            font-size: 9pt;
+            font-size: 7pt;
             font-weight: bold;
-            margin-bottom: 2mm;
+            margin-bottom: 0.5mm;
             color: #333;
-            text-align: center;
-            line-height: 1.2;
-            max-height: 15mm;
+            line-height: 1.1;
+            max-height: 9mm;
             overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
+            word-wrap: break-word;
         }
         
         .label-content .harga {
-            font-size: 12pt;
+            font-size: 8pt;
             font-weight: bold;
             color: #d32f2f;
-            margin-top: 1mm;
-            padding: 1mm 3mm;
-            border: 1pt solid #d32f2f;
-            border-radius: 2mm;
-            background: #fff;
+            margin-top: 0.5mm;
+            padding: 0.5mm 1.5mm;
+            border: 0.8pt solid #d32f2f;
+            border-radius: 1mm;
+            display: inline-block;
         }
         
         .label-content .id {
-            font-size: 6pt;
+            font-size: 5pt;
             color: #999;
-            margin-top: 1mm;
-        }
-        
-        .label-cell.empty {
-            border: none;
+            margin-top: 0.5mm;
         }
     </style>
 </head>
 <body>
-    <div class="page">
-        <div class="label-grid">
-            @php
-                $labelsByPosition = [];
-                foreach ($labels as $label) {
-                    $key = $label['y'] . '_' . $label['x'];
-                    $labelsByPosition[$key] = $label['barang'];
-                }
-            @endphp
-            
-            @for($y = 0; $y < 8; $y++)
-                <div class="label-row">
-                    @for($x = 0; $x < 5; $x++)
-                        @php
-                            $key = $y . '_' . $x;
-                            $barang = $labelsByPosition[$key] ?? null;
-                        @endphp
-                        
-                        <div class="label-cell {{ $barang ? '' : 'empty' }}">
-                            @if($barang)
-                                <div class="label-content">
-                                    <div class="nama">{{ $barang->nama }}</div>
-                                    <div class="harga">Rp {{ number_format($barang->harga, 0, '.', '.') }}</div>
-                                    <div class="id">#{{ $barang->id_barang }}</div>
-                                </div>
-                            @endif
+    @php
+        // Ukuran per label dengan spacing (dalam mm)
+        $labelWidth = 38;   // Lebar label: 38mm
+        $labelHeight = 18;  // Tinggi label: 18mm
+        $gapX = 2;          // Gap horizontal: 2mm
+        $gapY = 2;          // Gap vertikal: 2mm
+        
+        // Total spacing per cell
+        $cellWidth = $labelWidth + $gapX;   // 40mm per cell
+        $cellHeight = $labelHeight + $gapY; // 20mm per cell
+    @endphp
+    
+    @foreach($pages as $pageIndex => $pageLabels)
+        <div class="page">
+            @foreach($pageLabels as $label)
+                @php
+                    $x = $label['x'];
+                    $y = $label['y'];
+                    $barang = $label['barang'];
+                    
+                    // Hitung posisi absolute dengan gap
+                    $left = $x * $cellWidth;
+                    $top = $y * $cellHeight;
+                @endphp
+                
+                <div class="label-item" style="left: {{ $left }}mm; top: {{ $top }}mm;">
+                    <div class="label-content">
+                        <div class="label-inner">
+                            <div class="nama">{{ $barang->nama }}</div>
+                            <div class="harga">Rp {{ number_format($barang->harga, 0, '.', '.') }}</div>
+                            <div class="id">#{{ $barang->id_barang }}</div>
                         </div>
-                    @endfor
+                    </div>
                 </div>
-            @endfor
+            @endforeach
         </div>
-    </div>
+    @endforeach
 </body>
 </html>
