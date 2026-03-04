@@ -5,115 +5,103 @@
     <title>Label Harga Barang</title>
     <style>
         @page {
-            margin: 5mm;  /* Margin tepi kertas */
-            size: 210mm 160mm;  /* 21cm x 16cm */
+            margin: 3mm;
+            size: 102mm 78mm;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: Arial, sans-serif;
         }
-        
+
+        /*
+         * Kertas TnJ 108: 102mm × 78mm
+         * Margin kertas: 3mm tiap sisi
+         * Area cetak: 96mm × 72mm
+         * Grid: 5 kolom × 8 baris
+         * Cell : 19.2mm × 9mm
+         * Label: 17.2mm × 7.4mm (cell dikurangi gap)
+         * Gap  : 2mm horizontal, 1.6mm vertikal (terlihat jelas)
+         */
         .page {
             position: relative;
-            width: 200mm;  /* 210mm - (2 × 5mm margin) */
-            height: 150mm; /* 160mm - (2 × 5mm margin) */
+            width: 96mm;
+            height: 72mm;
             page-break-after: always;
         }
-        
+
         .page:last-child {
             page-break-after: auto;
         }
-        
+
         .label-item {
             position: absolute;
-            width: 38mm;  /* Label: 3cm */
-            height: 18mm; /* Label: 2cm */
-            padding: 0;
+            width: 19.2mm;  /* 96mm / 5 */
+            height: 9mm;    /* 72mm / 8 */
+            padding: 0.8mm 1mm; /* gap: 1.6mm vertikal, 2mm horizontal */
         }
-        
+
         .label-content {
             width: 100%;
             height: 100%;
-            border: 1pt solid #000;
-            border-radius: 1.5mm;
-            padding: 1.5mm;
+            border: 0.5pt solid #444;
+            border-radius: 0.6mm;
             text-align: center;
-            background: #ffffff;
+            background: #fff;
             display: table;
         }
-        
+
         .label-inner {
             display: table-cell;
             vertical-align: middle;
+            padding: 0.2mm 0.3mm;
         }
-        
-        .label-content .nama {
-            font-size: 7pt;
+
+        .nama {
+            font-size: 4pt;
             font-weight: bold;
-            margin-bottom: 0.5mm;
-            color: #333;
+            color: #222;
             line-height: 1.1;
-            max-height: 9mm;
+            margin-bottom: 0.2mm;
             overflow: hidden;
             word-wrap: break-word;
         }
-        
-        .label-content .harga {
-            font-size: 8pt;
+
+        .harga {
+            font-size: 4.5pt;
             font-weight: bold;
-            color: #d32f2f;
-            margin-top: 0.5mm;
-            padding: 0.5mm 1.5mm;
-            border: 0.8pt solid #d32f2f;
-            border-radius: 1mm;
+            color: #c62828;
+            padding: 0.1mm 0.5mm;
+            border: 0.3pt solid #c62828;
+            border-radius: 0.4mm;
             display: inline-block;
-        }
-        
-        .label-content .id {
-            font-size: 5pt;
-            color: #999;
-            margin-top: 0.5mm;
         }
     </style>
 </head>
 <body>
     @php
-        // Ukuran per label dengan spacing (dalam mm)
-        $labelWidth = 38;   // Lebar label: 38mm
-        $labelHeight = 18;  // Tinggi label: 18mm
-        $gapX = 2;          // Gap horizontal: 2mm
-        $gapY = 2;          // Gap vertikal: 2mm
-        
-        // Total spacing per cell
-        $cellWidth = $labelWidth + $gapX;   // 40mm per cell
-        $cellHeight = $labelHeight + $gapY; // 20mm per cell
+        $cellW = 19.2;  // 96mm / 5 kolom
+        $cellH = 9;     // 72mm / 8 baris
     @endphp
-    
-    @foreach($pages as $pageIndex => $pageLabels)
+
+    @foreach($pages as $pageLabels)
         <div class="page">
             @foreach($pageLabels as $label)
                 @php
-                    $x = $label['x'];
-                    $y = $label['y'];
-                    $barang = $label['barang'];
-                    
-                    // Hitung posisi absolute dengan gap
-                    $left = $x * $cellWidth;
-                    $top = $y * $cellHeight;
+                    $left = $label['x'] * $cellW;
+                    $top  = $label['y'] * $cellH;
+                    $b    = $label['barang'];
                 @endphp
-                
-                <div class="label-item" style="left: {{ $left }}mm; top: {{ $top }}mm;">
+                <div class="label-item" style="left:{{ $left }}mm; top:{{ $top }}mm;">
                     <div class="label-content">
                         <div class="label-inner">
-                            <div class="nama">{{ $barang->nama }}</div>
-                            <div class="harga">Rp {{ number_format($barang->harga, 0, '.', '.') }}</div>
-                            <div class="id">#{{ $barang->id_barang }}</div>
+                            <div class="nama">{{ $b->nama }}</div>
+                            <div class="harga">Rp {{ number_format($b->harga, 0, '.', '.') }}</div>
                         </div>
                     </div>
                 </div>

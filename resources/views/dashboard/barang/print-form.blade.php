@@ -74,10 +74,10 @@
                                     <div class="card-body">
                                         <h5 class="text-white mb-3">Informasi Kertas Label</h5>
                                         <p class="text-white mb-2">
-                                            <i class="mdi mdi-label-outline"></i> <strong>Ukuran Kertas:</strong> 21cm × 16cm
+                                            <i class="mdi mdi-label-outline"></i> <strong>Ukuran Kertas:</strong> 102mm × 78mm
                                         </p>
                                         <p class="text-white mb-2">
-                                            <i class="mdi mdi-crop-square"></i> <strong>Ukuran Label:</strong> 3cm × 2cm
+                                            <i class="mdi mdi-crop-square"></i> <strong>Ukuran Label:</strong> ~19mm × 8.5mm
                                         </p>
                                         <p class="text-white mb-2">
                                             <i class="mdi mdi-grid"></i> <strong>Layout:</strong> 5 Kolom × 8 Baris

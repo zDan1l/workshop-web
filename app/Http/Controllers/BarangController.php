@@ -111,8 +111,10 @@ class BarangController extends Controller
 
         $pdf = PDF::loadView('dashboard.barang.pdf-labels', compact('pages'));
         
-        // Set paper size to A4 (210mm x 297mm) which is standard for label TnJ 108
-        $pdf->setPaper('0,0, 210 * 2.83465, 165 * 2.83465', 'portrait');
+        // Kertas TnJ 108: 102mm × 78mm
+        // 102 × 2.83465 = 289.13pt, 78 × 2.83465 = 221.10pt
+        $pdf->setPaper([0, 0, 289.13, 221.10]);
+        $pdf->setOption('dpi', 96);
         
         return $pdf->stream('label-barang.pdf');
     }
