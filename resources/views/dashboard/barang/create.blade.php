@@ -23,7 +23,7 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">Form Tambah Barang</h4>
-                    <form action="{{ route('barang.store') }}" method="POST">
+                    <form id="formBarang" action="{{ route('barang.store') }}" method="POST">
                         @csrf
                         <div class="form-group">
                             <label for="nama">Nama Barang</label>
@@ -41,9 +41,11 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        <button type="submit" class="btn btn-gradient-primary me-2">Simpan</button>
-                        <a href="{{ route('barang.index') }}" class="btn btn-light">Batal</a>
                     </form>
+                    <button type="button" id="btnSubmit" class="btn btn-gradient-primary me-2" onclick="submitWithSpinner('formBarang', this)">
+                        Simpan
+                    </button>
+                    <a href="{{ route('barang.index') }}" class="btn btn-light">Batal</a>
                 </div>
             </div>
         </div>

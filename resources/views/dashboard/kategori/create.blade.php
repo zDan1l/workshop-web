@@ -34,20 +34,22 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('kategori.store') }}" method="POST" class="forms-sample">
+                    <form id="formKategori" action="{{ route('kategori.store') }}" method="POST" class="forms-sample">
                         @csrf
                         <div class="form-group">
                             <label for="nama_kategori">Nama Kategori</label>
                             <input type="text" class="form-control @error('nama_kategori') is-invalid @enderror" 
                                    id="nama_kategori" name="nama_kategori" value="{{ old('nama_kategori') }}" 
-                                   placeholder="Masukkan nama kategori">
+                                   placeholder="Masukkan nama kategori" required>
                             @error('nama_kategori')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        <button type="submit" class="btn btn-gradient-primary me-2">Simpan</button>
-                        <a href="{{ route('kategori.index') }}" class="btn btn-light">Batal</a>
                     </form>
+                    <button type="button" id="btnSubmit" class="btn btn-gradient-primary me-2" onclick="submitWithSpinner('formKategori', this)">
+                        Simpan
+                    </button>
+                    <a href="{{ route('kategori.index') }}" class="btn btn-light">Batal</a>
                 </div>
             </div>
         </div>

@@ -43,6 +43,26 @@
       </div>
     </li>
     <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="collapse" href="#studi-kasus" aria-expanded="false" aria-controls="studi-kasus">
+        <span class="menu-title">Studi Kasus</span>
+        <i class="menu-arrow"></i>
+        <i class="mdi mdi-flask menu-icon"></i>
+      </a>
+      <div class="collapse" id="studi-kasus">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('studi-kasus.table') }}">HTML Table</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('studi-kasus.datatables') }}">DataTables</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('studi-kasus.select') }}">Select Kota</a>
+          </li>
+        </ul>
+      </div>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#menu-pdf" aria-expanded="false" aria-controls="menu-pdf">
         <span class="menu-title">Generator PDF</span>
         <i class="menu-arrow"></i>

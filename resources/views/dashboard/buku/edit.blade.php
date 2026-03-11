@@ -34,14 +34,14 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('buku.update', $buku) }}" method="POST" class="forms-sample">
+                    <form id="formBukuEdit" action="{{ route('buku.update', $buku) }}" method="POST" class="forms-sample">
                         @csrf
                         @method('PUT')
                         <div class="form-group">
                             <label for="kode">Kode Buku</label>
                             <input type="text" class="form-control @error('kode') is-invalid @enderror" 
                                    id="kode" name="kode" value="{{ old('kode', $buku->kode) }}" 
-                                   placeholder="Masukkan kode buku">
+                                   placeholder="Masukkan kode buku" required>
                             @error('kode')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -50,7 +50,7 @@
                             <label for="judul">Judul Buku</label>
                             <input type="text" class="form-control @error('judul') is-invalid @enderror" 
                                    id="judul" name="judul" value="{{ old('judul', $buku->judul) }}" 
-                                   placeholder="Masukkan judul buku">
+                                   placeholder="Masukkan judul buku" required>
                             @error('judul')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -59,7 +59,7 @@
                             <label for="pengarang">Pengarang</label>
                             <input type="text" class="form-control @error('pengarang') is-invalid @enderror" 
                                    id="pengarang" name="pengarang" value="{{ old('pengarang', $buku->pengarang) }}" 
-                                   placeholder="Masukkan nama pengarang">
+                                   placeholder="Masukkan nama pengarang" required>
                             @error('pengarang')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -67,7 +67,7 @@
                         <div class="form-group">
                             <label for="kategori_id">Kategori</label>
                             <select class="form-control @error('kategori_id') is-invalid @enderror" 
-                                    id="kategori_id" name="kategori_id">
+                                    id="kategori_id" name="kategori_id" required>
                                 <option value="">-- Pilih Kategori --</option>
                                 @foreach($kategoris as $kategori)
                                     <option value="{{ $kategori->id }}" {{ old('kategori_id', $buku->kategori_id) == $kategori->id ? 'selected' : '' }}>
@@ -79,9 +79,11 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        <button type="submit" class="btn btn-gradient-primary me-2">Update</button>
-                        <a href="{{ route('buku.index') }}" class="btn btn-light">Batal</a>
                     </form>
+                    <button type="button" id="btnSubmit" class="btn btn-gradient-primary me-2" onclick="submitWithSpinner('formBukuEdit', this)">
+                        Update
+                    </button>
+                    <a href="{{ route('buku.index') }}" class="btn btn-light">Batal</a>
                 </div>
             </div>
         </div>

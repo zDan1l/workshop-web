@@ -40,6 +40,17 @@ Route::middleware('user')->group(function () {
     // CRUD Barang
     Route::resource('barang', BarangController::class);
     
+    // Studi Kasus
+    Route::get('studi-kasus/table', function () {
+        return view('dashboard.barang.studi-kasus-table');
+    })->name('studi-kasus.table');
+    Route::get('studi-kasus/datatables', function () {
+        return view('dashboard.barang.studi-kasus-datatables');
+    })->name('studi-kasus.datatables');
+    Route::get('studi-kasus/select', function () {
+        return view('dashboard.studi-kasus-select');
+    })->name('studi-kasus.select');
+
     // Print Label Barang
     Route::get('barang-print/form', [BarangController::class, 'printForm'])->name('barang.print.form');
     Route::post('barang-print/pdf', [BarangController::class, 'printPdf'])->name('barang.print.pdf');

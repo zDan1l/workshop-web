@@ -44,6 +44,7 @@
             vertical-align: middle;
             overflow: hidden;
             padding: 0;
+            border: 1px solid #000;
         }
 
         table.label-grid td div {

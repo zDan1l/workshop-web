@@ -34,7 +34,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('kategori.update', $kategori) }}" method="POST" class="forms-sample">
+                    <form id="formKategoriEdit" action="{{ route('kategori.update', $kategori) }}" method="POST" class="forms-sample">
                         @csrf
                         @method('PUT')
                         <div class="form-group">
@@ -42,14 +42,16 @@
                             <input type="text" class="form-control @error('nama_kategori') is-invalid @enderror" 
                                    id="nama_kategori" name="nama_kategori" 
                                    value="{{ old('nama_kategori', $kategori->nama_kategori) }}" 
-                                   placeholder="Masukkan nama kategori">
+                                   placeholder="Masukkan nama kategori" required>
                             @error('nama_kategori')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        <button type="submit" class="btn btn-gradient-primary me-2">Update</button>
-                        <a href="{{ route('kategori.index') }}" class="btn btn-light">Batal</a>
                     </form>
+                    <button type="button" id="btnSubmit" class="btn btn-gradient-primary me-2" onclick="submitWithSpinner('formKategoriEdit', this)">
+                        Update
+                    </button>
+                    <a href="{{ route('kategori.index') }}" class="btn btn-light">Batal</a>
                 </div>
             </div>
         </div>

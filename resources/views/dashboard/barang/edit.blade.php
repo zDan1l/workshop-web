@@ -23,7 +23,7 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">Form Edit Barang</h4>
-                    <form action="{{ route('barang.update', $barang->id_barang) }}" method="POST">
+                    <form id="formBarangEdit" action="{{ route('barang.update', $barang->id_barang) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="form-group">
@@ -42,9 +42,11 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        <button type="submit" class="btn btn-gradient-primary me-2">Update</button>
-                        <a href="{{ route('barang.index') }}" class="btn btn-light">Batal</a>
                     </form>
+                    <button type="button" id="btnSubmit" class="btn btn-gradient-primary me-2" onclick="submitWithSpinner('formBarangEdit', this)">
+                        Update
+                    </button>
+                    <a href="{{ route('barang.index') }}" class="btn btn-light">Batal</a>
                 </div>
             </div>
         </div>
