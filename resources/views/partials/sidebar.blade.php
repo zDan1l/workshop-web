@@ -51,13 +51,25 @@
       <div class="collapse" id="studi-kasus">
         <ul class="nav flex-column sub-menu">
           <li class="nav-item">
-            <a class="nav-link" href="{{ route('studi-kasus.table') }}">HTML Table</a>
+            <a class="nav-link {{ request()->is('studi-kasus-html-table') ? 'active' : '' }}" href="{{ route('studi-kasus.table') }}">HTML Table</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ route('studi-kasus.datatables') }}">DataTables</a>
+            <a class="nav-link {{ request()->is('studi-kasus-datatables') ? 'active' : '' }}" href="{{ route('studi-kasus.datatables') }}">DataTables</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ route('studi-kasus.select') }}">Select Kota</a>
+            <a class="nav-link {{ request()->is('studi-kasus-select-kota') ? 'active' : '' }}" href="{{ route('studi-kasus.select') }}">Select Kota</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('studi-kasus-wilayah-ajax') ? 'active' : '' }}" href="{{ route('studi-kasus.wilayah-ajax') }}">Wilayah Administrasi (Ajax)</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('studi-kasus-wilayah-axios') ? 'active' : '' }}" href="{{ route('studi-kasus.wilayah-axios') }}">Wilayah Administrasi (Axios)</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('studi-kasus-pos-ajax') ? 'active' : '' }}" href="{{ route('studi-kasus.pos-ajax') }}">Point of Sales (Ajax)</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('studi-kasus-pos-axios') ? 'active' : '' }}" href="{{ route('studi-kasus.pos-axios') }}">Point of Sales (Axios)</a>
           </li>
         </ul>
       </div>

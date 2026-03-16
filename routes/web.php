@@ -5,8 +5,10 @@ use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\POSController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\SertifikatController;
+use App\Http\Controllers\WilayahController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -33,27 +35,55 @@ Route::middleware('admin')->group(function () {
 // Routes yang memerlukan login (semua user)
 Route::middleware('user')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Buku - hanya index dan show untuk semua user
     Route::resource('buku', BukuController::class)->only(['index', 'show']);
-    
+
     // CRUD Barang
     Route::resource('barang', BarangController::class);
-    
-    // Studi Kasus
-    Route::get('studi-kasus/table', function () {
-        return view('dashboard.studi-kasus.table');
-    })->name('studi-kasus.table');
-    Route::get('studi-kasus/datatables', function () {
-        return view('dashboard.studi-kasus.datatables');
-    })->name('studi-kasus.datatables');
-    Route::get('studi-kasus/select', function () {
-        return view('dashboard.studi-kasus.select');
-    })->name('studi-kasus.select');
 
     // Print Label Barang
     Route::get('barang-print/form', [BarangController::class, 'printForm'])->name('barang.print.form');
     Route::post('barang-print/pdf', [BarangController::class, 'printPdf'])->name('barang.print.pdf');
+
+    // =====================================================
+    // STUDI KASUS - URL Terpisah untuk Active State Sidebar
+    // =====================================================
+
+    // Studi Kasus: HTML Table
+    Route::get('studi-kasus-html-table', function () {
+        return view('dashboard.studi-kasus.table');
+    })->name('studi-kasus.table');
+
+    // Studi Kasus: DataTables
+    Route::get('studi-kasus-datatables', function () {
+        return view('dashboard.studi-kasus.datatables');
+    })->name('studi-kasus.datatables');
+
+    // Studi Kasus: Select Kota
+    Route::get('studi-kasus-select-kota', function () {
+        return view('dashboard.studi-kasus.select');
+    })->name('studi-kasus.select');
+
+    // Studi Kasus: Wilayah Administrasi (Ajax)
+    Route::get('studi-kasus-wilayah-ajax', [WilayahController::class, 'index'])->name('studi-kasus.wilayah-ajax');
+    // API endpoints untuk Wilayah (Ajax)
+    Route::get('api/wilayah/provinsi', [WilayahController::class, 'getProvinsi'])->name('wilayah.get-provinsi');
+    Route::get('api/wilayah/kota', [WilayahController::class, 'getKota'])->name('wilayah.get-kota');
+    Route::get('api/wilayah/kecamatan', [WilayahController::class, 'getKecamatan'])->name('wilayah.get-kecamatan');
+    Route::get('api/wilayah/kelurahan', [WilayahController::class, 'getKelurahan'])->name('wilayah.get-kelurahan');
+
+    // Studi Kasus: Wilayah Administrasi (Axios)
+    Route::get('studi-kasus-wilayah-axios', [WilayahController::class, 'indexAxios'])->name('studi-kasus.wilayah-axios');
+
+    // Studi Kasus: Point of Sales (Ajax)
+    Route::get('studi-kasus-pos-ajax', [POSController::class, 'index'])->name('studi-kasus.pos-ajax');
+    // API endpoints untuk POS
+    Route::get('api/pos/search-barang', [POSController::class, 'searchBarang'])->name('pos.search-barang');
+    Route::post('api/pos/store', [POSController::class, 'store'])->name('pos.store');
+
+    // Studi Kasus: Point of Sales (Axios)
+    Route::get('studi-kasus-pos-axios', [POSController::class, 'indexAxios'])->name('studi-kasus.pos-axios');
 });
 
 // =============================================
