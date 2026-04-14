@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
+use Picqer\Barcode\BarcodeGenerator;
+use Picqer\Barcode\BarcodeGeneratorHTML;
 
 class BarangController extends Controller
 {
@@ -65,86 +67,174 @@ class BarangController extends Controller
 
     public function printForm()
     {
-        $barangs = Barang::all();
+        $barangs = Barang::orderBy('kode', 'asc')->paginate(15);
         return view('dashboard.barang.print-form', compact('barangs'));
     }
+
+    // public function printPdf(Request $request)
+    // {
+    //     $request->validate([
+    //         'selected_barang' => 'required|array|min:1',
+    //         'selected_barang.*' => 'exists:barangs,kode',
+    //         'start_x' => 'required|integer|min:1|max:5',
+    //         'start_y' => 'required|integer|min:1|max:12',
+    //     ]);
+
+    //     $barangs = Barang::whereIn('kode', $request->selected_barang)->get();
+    //     $startX = $request->start_x;
+    //     $startY = $request->start_y;
+
+    //     // Layout: 5 kolom × 12 baris (A4)
+    //     $cols = 5;
+    //     $rows = 12;
+
+    //     // Calculate label positions
+    //     $allLabels = $this->calculateLabelPositions($barangs, $startX, $startY, $cols);
+
+    //     // Generate barcode for each barang dengan nomor urut
+    //     $generator = new BarcodeGeneratorHTML();
+    //     $labelsWithBarcode = []; // Nomor urut mulai dari 1
+
+    //     foreach ($allLabels as $label) {
+    //         $barang = $label['barang'];
+
+    //         // Buat kode pendek untuk barcode (tanpa BRG dan -)
+    //         // BRG-20260414-000001 -> 20260414000001
+    //         $shortCode = str_replace(['BRG', '-'], '', $barang->kode);
+
+    //         $labelsWithBarcode[] = [
+    //             'barang' => $barang,
+    //             'x' => $label['x'],
+    //             'y' => $label['y'],
+    //             'barcode' => $generator->getBarcode(
+    //                 $shortCode,
+    //                 $generator::TYPE_CODE_128,
+    //                 1,
+    //                 30
+    //             )// Nomor urut 1, 2, 3, dst
+    //         ];
+    //     }
+
+    //     // Group labels by page
+    //     $pages = [];
+    //     $currentPage = [];
+
+    //     foreach ($labelsWithBarcode as $label) {
+    //         if ($label['y'] >= $rows) {
+    //             if (!empty($currentPage)) {
+    //                 $pages[] = $currentPage;
+    //             }
+    //             $currentPage = [];
+    //             $label['y'] = $label['y'] % $rows;
+    //         }
+
+    //         $currentPage[] = $label;
+    //     }
+
+    //     if (!empty($currentPage)) {
+    //         $pages[] = $currentPage;
+    //     }
+
+    //     $pdf = PDF::loadView('dashboard.barang.pdf-labels', compact('pages'));
+
+    //     // Kertas A4
+    //     $pdf->setPaper('A4', 'portrait');
+    //     $pdf->setOption('dpi', 96);
+
+    //     return $pdf->stream('label-barang.pdf');
+    // }
 
     public function printPdf(Request $request)
     {
         $request->validate([
             'selected_barang' => 'required|array|min:1',
-            'selected_barang.*' => 'exists:barangs,id_barang',
+            'selected_barang.*' => 'exists:barangs,kode',
             'start_x' => 'required|integer|min:1|max:5',
-            'start_y' => 'required|integer|min:1|max:8',
+            'start_y' => 'required|integer|min:1|max:12',
         ]);
 
-        $barangs = Barang::whereIn('id_barang', $request->selected_barang)->get();
+        $barangs = Barang::whereIn('kode', $request->selected_barang)->get();
         $startX = $request->start_x;
         $startY = $request->start_y;
 
-        // Calculate label positions for 5 columns x 8 rows
-        $allLabels = $this->calculateLabelPositions($barangs, $startX, $startY);
-        
-        // Group labels by page (40 labels per page)
+        $cols = 5;
+        $rows = 12;
+
+        $allLabels = $this->calculateLabelPositions($barangs, $startX, $startY, $cols);
+
+        $generator = new BarcodeGeneratorHTML();
+        $labelsWithBarcode = [];
+
+        foreach ($allLabels as $label) {
+            $barang = $label['barang'];
+
+            // Barcode menggunakan kode lengkap (BRG-000001)
+            // Tampilkan di label: 000001 (tanpa BRG)
+            $displayCode = str_replace('BRG-', '', $barang->kode);
+
+            $labelsWithBarcode[] = [
+                'barang' => $barang,
+                'x' => $label['x'],
+                'y' => $label['y'],
+                'barcode' => $generator->getBarcode(
+                    $barang->kode,        // Barcode menggunakan kode lengkap
+                    $generator::TYPE_CODE_128,
+                    1,
+                    30
+                ),
+                'displayCode' => $displayCode   // Untuk display: 000001
+            ];
+        }
+
         $pages = [];
         $currentPage = [];
-        $labelCount = 0;
-        
-        foreach ($allLabels as $label) {
-            // If we're at a new page boundary (y >= 8), start new page
-            if ($label['y'] >= 8) {
+
+        foreach ($labelsWithBarcode as $label) {
+            if ($label['y'] >= $rows) {
                 if (!empty($currentPage)) {
                     $pages[] = $currentPage;
                 }
                 $currentPage = [];
-                // Reset y to 0 for new page
-                $label['y'] = $label['y'] % 8;
+                $label['y'] = $label['y'] % $rows;
             }
-            
+
             $currentPage[] = $label;
         }
-        
-        // Add the last page
+
         if (!empty($currentPage)) {
             $pages[] = $currentPage;
         }
 
         $pdf = PDF::loadView('dashboard.barang.pdf-labels', compact('pages'));
-        
-        // Kertas TnJ 108: 102mm × 78mm
-        // 102 × 2.83465 = 289.13pt, 78 × 2.83465 = 221.10pt
-        $pdf->setPaper([0, 0, 289.13, 221.10]);
+        $pdf->setPaper('A4', 'portrait');
         $pdf->setOption('dpi', 96);
-        
+
         return $pdf->stream('label-barang.pdf');
     }
 
-    private function calculateLabelPositions($barangs, $startX, $startY)
+    private function calculateLabelPositions($barangs, $startX, $startY, $cols = 5)
     {
         $labels = [];
-        $cols = 5;  // 5 kolom
-        $rows = 8;  // 8 baris
-        
+
         // Convert to 0-based index
         $currentX = $startX - 1;
         $currentY = $startY - 1;
-        
+
         foreach ($barangs as $barang) {
             $labels[] = [
                 'barang' => $barang,
                 'x' => $currentX,
                 'y' => $currentY
             ];
-            
+
             // Move to next position (left to right, top to bottom)
             $currentX++;
             if ($currentX >= $cols) {
                 $currentX = 0;
                 $currentY++;
-                // Allow y to go beyond 8 for multiple pages
             }
         }
-        
+
         return $labels;
     }
 }

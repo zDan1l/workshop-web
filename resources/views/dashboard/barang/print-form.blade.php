@@ -24,7 +24,7 @@
                 <div class="card-body">
                     <h4 class="card-title">Pilih Barang dan Koordinat Awal</h4>
                     <p class="card-description">
-                        Pilih barang yang akan dicetak dan tentukan posisi awal label pada kertas (21cm × 16cm, Grid 7×8)
+                        Pilih barang yang akan dicetak dan tentukan posisi awal label
                     </p>
 
                     @if($errors->any())
@@ -40,51 +40,36 @@
 
                     <form action="{{ route('barang.print.pdf') }}" method="POST" id="printForm">
                         @csrf
-                        
+
                         <div class="row mb-4">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="card bg-gradient-info text-white">
                                     <div class="card-body">
-                                        <h5 class="text-white mb-3">Koordinat Awal Cetak</h5>
+                                        <h5 class="text-white mb-3">Koordinat Awal Cetak (5 Kolom × 12 Baris)</h5>
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label for="start_x" class="text-white">Kolom X (1-5)</label>
-                                                    <input type="number" class="form-control" id="start_x" 
+                                                    <input type="number" class="form-control" id="start_x"
                                                            name="start_x" min="1" max="5" value="1" required>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-3">
                                                 <div class="form-group">
-                                                    <label for="start_y" class="text-white">Baris Y (1-8)</label>
-                                                    <input type="number" class="form-control" id="start_y" 
-                                                           name="start_y" min="1" max="8" value="1" required>
+                                                    <label for="start_y" class="text-white">Baris Y (1-12)</label>
+                                                    <input type="number" class="form-control" id="start_y"
+                                                           name="start_y" min="1" max="12" value="1" required>
                                                 </div>
                                             </div>
+                                            <div class="col-md-6 d-flex align-items-center">
+                                                <small class="text-white">
+                                                    <i class="mdi mdi-information"></i>
+                                                    <strong>Layout:</strong> 5 Kolom × 12 Baris = 60 label/lembar
+                                                    <br>
+                                                    <strong>Ukuran Kertas:</strong> A4
+                                                </small>
+                                            </div>
                                         </div>
-                                        <small class="text-white">
-                                            <i class="mdi mdi-information"></i> 
-                                            Contoh: X=3, Y=2 akan mulai dari kolom ke-3, baris ke-2
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card bg-gradient-warning text-white">
-                                    <div class="card-body">
-                                        <h5 class="text-white mb-3">Informasi Kertas Label</h5>
-                                        <p class="text-white mb-2">
-                                            <i class="mdi mdi-label-outline"></i> <strong>Ukuran Kertas:</strong> 102mm × 78mm
-                                        </p>
-                                        <p class="text-white mb-2">
-                                            <i class="mdi mdi-crop-square"></i> <strong>Ukuran Label:</strong> ~19mm × 8.5mm
-                                        </p>
-                                        <p class="text-white mb-2">
-                                            <i class="mdi mdi-grid"></i> <strong>Layout:</strong> 5 Kolom × 8 Baris
-                                        </p>
-                                        <p class="text-white mb-0">
-                                            <i class="mdi mdi-content-duplicate"></i> <strong>Total Label:</strong> 40 label per lembar
-                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -109,26 +94,37 @@
                                         <th width="50">
                                             <input type="checkbox" id="checkAll" class="form-check-input">
                                         </th>
-                                        <th>No</th>
+                                        <th width="80">No</th>
+                                        <th>Kode Barang</th>
                                         <th>Nama Barang</th>
                                         <th>Harga</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($barangs as $index => $barang)
+                                    @foreach($barangs as $barang)
                                         <tr>
                                             <td>
-                                                <input type="checkbox" name="selected_barang[]" 
-                                                       value="{{ $barang->id_barang }}" 
+                                                <input type="checkbox" name="selected_barang[]"
+                                                       value="{{ $barang->kode }}"
                                                        class="form-check-input barang-checkbox">
                                             </td>
-                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ $barangs->firstItem() + $loop->index }}</td>
+                                            <td><code class="badge bg-light text-dark">{{ $barang->kode }}</code></td>
                                             <td>{{ $barang->nama }}</td>
                                             <td>Rp {{ number_format($barang->harga, 0, ',', '.') }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <small class="text-muted">
+                                Menampilkan {{ $barangs->firstItem() }} - {{ $barangs->lastItem() }}
+                                dari {{ $barangs->total() }} barang
+                            </small>
+                            {{ $barangs->appends(request()->query())->links('pagination::bootstrap-5') }}
                         </div>
 
                         <div class="mt-4">
@@ -153,7 +149,7 @@
                     <h4 class="card-title">Preview Posisi Label</h4>
                     <div id="gridPreview" class="mt-3">
                         <div class="label-grid">
-                            @for($y = 1; $y <= 8; $y++)
+                            @for($y = 1; $y <= 12; $y++)
                                 <div class="label-row">
                                     @for($x = 1; $x <= 5; $x++)
                                         <div class="label-cell" data-x="{{ $x }}" data-y="{{ $y }}">
@@ -172,6 +168,49 @@
 
 @push('scripts')
 <style>
+    /* Table Styles */
+    .table thead th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f1f5f9;
+    }
+
+    /* Pagination Styles */
+    .pagination {
+        margin-bottom: 0;
+    }
+
+    .page-link {
+        color: #6c757d;
+        border-color: #dee2e6;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .page-link:hover {
+        color: #0d6efd;
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+    }
+
+    .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
+
+    /* Label Grid Preview */
     .label-grid {
         display: flex;
         flex-direction: column;
@@ -186,7 +225,7 @@
     }
     .label-cell {
         flex: 1;
-        aspect-ratio: 1.5;  /* 3cm / 2cm = 1.5 */
+        aspect-ratio: 2.1;
         border: 2px solid #ddd;
         border-radius: 4px;
         display: flex;
@@ -245,32 +284,36 @@
             updatePreview();
         });
 
-        // Update preview grid
+        // Update preview grid (5 kolom x 12 baris)
         function updatePreview() {
             $('.label-cell').removeClass('start filled');
-            
+
             const startX = parseInt($('#start_x').val()) || 1;
             const startY = parseInt($('#start_y').val()) || 1;
             const selectedCount = $('.barang-checkbox:checked').length;
-            
+            const cols = 5;
+            const rows = 12;
+
             if (selectedCount > 0) {
                 let currentX = startX;
                 let currentY = startY;
-                
+
                 for (let i = 0; i < selectedCount; i++) {
                     const cell = $(`.label-cell[data-x="${currentX}"][data-y="${currentY}"]`);
-                    
-                    if (i === 0) {
-                        cell.addClass('start');
-                    } else {
-                        cell.addClass('filled');
+
+                    if (cell.length) {
+                        if (i === 0) {
+                            cell.addClass('start');
+                        } else {
+                            cell.addClass('filled');
+                        }
                     }
-                    
+
                     currentX++;
-                    if (currentX > 5) {  // 5 kolom
+                    if (currentX > cols) {
                         currentX = 1;
                         currentY++;
-                        if (currentY > 8) {
+                        if (currentY > rows) {
                             currentY = 1;
                         }
                     }

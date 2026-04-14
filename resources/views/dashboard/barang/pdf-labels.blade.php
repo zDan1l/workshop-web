@@ -2,97 +2,130 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Label Harga Barang</title>
+    <title>Label Barang</title>
     <style>
-        /*
-         * Kertas TnJ 108: 102mm × 78mm
-         * Margin kertas: 2mm tiap sisi
-         * Area cetak: 98mm × 74mm
-         * Grid: 5 kolom × 8 baris
-         * border-spacing: 1.5mm (gap antar label)
-         */
         @page {
-            margin: 2mm;
-            size: 102mm 78mm;
+            margin: 3mm;
+            size: A4;
         }
 
         * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             font-family: Arial, sans-serif;
         }
 
-        table.label-grid {
-            border-collapse: separate;
-            border-spacing: 1.5mm;
-            width: 98mm;
-            table-layout: fixed;
-            page-break-after: always;
+        .page-container {
+            width: 100%;
+            margin-bottom: 5mm;
         }
 
-        table.label-grid:last-child {
-            page-break-after: auto;
+        table.label-grid {
+            border-collapse: separate;
+            border-spacing: 2mm;
+            width: auto;
+            table-layout: auto;
         }
 
         table.label-grid td {
-            width: 18mm;
-            height: 7.5mm;
             text-align: center;
             vertical-align: middle;
-            overflow: hidden;
-            padding: 0;
+            padding: 2mm;
             border: 1px solid #000;
+            page-break-inside: avoid;
         }
 
-        table.label-grid td div {
-            margin: 0;
-            padding: 0;
+        .label-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1mm;
         }
 
+        .barcode-wrapper {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-        .nama {
-            font-size: 3.5pt;
+        .barcode-wrapper svg {
+            display: block;
+            width: 100% !important;
+            height: auto !important;
+            max-height: 12mm;
+        }
+
+        .kode-barang {
+            font-size: 8pt;
             font-weight: bold;
-            color: #222;
-            word-wrap: break-word;
+            color: #000;
+            font-family: 'Courier New', monospace;
         }
 
         .harga {
-            font-size: 3.5pt;
+            font-size: 9pt;
             font-weight: bold;
-            color: #222;
+            color: #e74c3c;
+        }
+        .text-card{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1mm;
         }
     </style>
 </head>
 <body>
     @foreach($pages as $pageLabels)
         @php
-            // Build lookup: grid[y][x] = barang
             $grid = [];
+            $maxRow = 0;
             foreach ($pageLabels as $label) {
-                $grid[$label['y']][$label['x']] = $label['barang'];
+                $grid[$label['y']][$label['x']] = $label;
+                if ($label['y'] > $maxRow) {
+                    $maxRow = $label['y'];
+                }
             }
         @endphp
-        <table class="label-grid">
-            @for($row = 0; $row < 8; $row++)
-                <tr>
-                    @for($col = 0; $col < 5; $col++)
-                        @if(isset($grid[$row][$col]))
-                            @php $b = $grid[$row][$col]; @endphp
-                            <td class="has-label">
-                                <p class="nama">{{ $b->nama }}</p>
-                                <p class="harga">Rp {{ number_format($b->harga, 0, '.', '.') }}</p>
-                            </td>
-                        @else
-                            <td></td>
-                        @endif
-                    @endfor
-                </tr>
-            @endfor
-        </table>
+
+        <div class="page-container">
+            <table class="label-grid">
+                @for($row = 0; $row <= $maxRow; $row++)
+                    <tr>
+                        @for($col = 0; $col < 5; $col++)
+                            @if(isset($grid[$row][$col]))
+                                @php
+                                    $labelData = $grid[$row][$col];
+                                    $b = $labelData['barang'];
+                                    $barcodeHtml = $labelData['barcode'] ?? '';
+                                    $displayCode = $labelData['displayCode'] ?? '';
+                                @endphp
+                                <td>
+                                    <div class="label-content">
+                                        @if(!empty($barcodeHtml))
+                                            <div class="barcode-wrapper">{!! $barcodeHtml !!}</div>
+                                        @endif
+                                        <div class="text-card">
+                                            <p class="kode-barang">{{ $displayCode }}</p>
+                                            <p class="harga">Rp{{ number_format($b->harga, 0, '.', '.') }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                            @else
+                                <td></td>
+                            @endif
+                        @endfor
+                    </tr>
+                @endfor
+            </table>
+        </div>
     @endforeach
 </body>
 </html>

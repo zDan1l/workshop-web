@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Barang;
+use App\Observers\BarangObserver;
 use App\Listeners\ClearUserFromSession;
 use App\Listeners\StoreUserInSession;
 use Carbon\Carbon;
@@ -27,6 +29,9 @@ class AppServiceProvider extends ServiceProvider
     {
         // Set Carbon locale to Indonesian for translatedFormat()
         Carbon::setLocale('id');
+
+        // Register observers
+        Barang::observe(BarangObserver::class);
 
         // Register event listeners for session management
         Event::listen(Login::class, StoreUserInSession::class);

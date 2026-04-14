@@ -44,7 +44,7 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>ID</th>
+                                    <th>Kode Barang</th>
                                     <th>Nama Barang</th>
                                     <th>Harga</th>
                                     <th>Aksi</th>
@@ -54,17 +54,17 @@
                                 @foreach($barangs as $index => $barang)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
-                                        <td>{{ $barang->id_barang }}</td>
+                                        <td><code class="badge bg-light text-dark">{{ $barang->kode }}</code></td>
                                         <td>{{ $barang->nama }}</td>
                                         <td>Rp {{ number_format($barang->harga, 0, ',', '.') }}</td>
                                         <td>
-                                            <a href="{{ route('barang.show', $barang->id_barang) }}" class="btn btn-info btn-sm">
+                                            <a href="{{ route('barang.show', $barang->kode) }}" class="btn btn-info btn-sm">
                                                 <i class="mdi mdi-eye"></i>
                                             </a>
-                                            <a href="{{ route('barang.edit', $barang->id_barang) }}" class="btn btn-warning btn-sm">
+                                            <a href="{{ route('barang.edit', $barang->kode) }}" class="btn btn-warning btn-sm">
                                                 <i class="mdi mdi-pencil"></i>
                                             </a>
-                                            <form action="{{ route('barang.destroy', $barang->id_barang) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?')">
+                                            <form action="{{ route('barang.destroy', $barang->kode) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-danger btn-sm">
