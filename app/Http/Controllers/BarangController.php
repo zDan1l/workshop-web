@@ -237,4 +237,30 @@ class BarangController extends Controller
 
         return $labels;
     }
+
+    public function scanner()
+    {
+        return view('dashboard.barang.scanner');
+    }
+
+    public function getBarangByKode($kode)
+    {
+        $barang = Barang::find($kode);
+
+        if (!$barang) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Barang tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'kode' => $barang->kode,
+                'nama' => $barang->nama,
+                'harga' => $barang->harga
+            ]
+        ]);
+    }
 }

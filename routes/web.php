@@ -46,6 +46,10 @@ Route::middleware('user')->group(function () {
     Route::get('barang-print/form', [BarangController::class, 'printForm'])->name('barang.print.form');
     Route::post('barang-print/pdf', [BarangController::class, 'printPdf'])->name('barang.print.pdf');
 
+    // Barcode Scanner
+    Route::get('barang-scanner', [BarangController::class, 'scanner'])->name('barang.scanner');
+    Route::get('api/barang/{kode}', [BarangController::class, 'getBarangByKode'])->name('api.barang.show');
+
     // =====================================================
     // STUDI KASUS - URL Terpisah untuk Active State Sidebar
     // =====================================================

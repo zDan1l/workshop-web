@@ -113,7 +113,7 @@
                                             <div class="barcode-wrapper">{!! $barcodeHtml !!}</div>
                                         @endif
                                         <div class="text-card">
-                                            <p class="kode-barang">{{ $displayCode }}</p>
+                                            <p class="kode-barang">BRG-{{ $displayCode }}</p>
                                             <p class="harga">Rp{{ number_format($b->harga, 0, '.', '.') }}</p>
                                         </div>
                                     </div>

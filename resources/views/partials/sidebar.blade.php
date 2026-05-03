@@ -39,6 +39,11 @@
           <li class="nav-item">
             <a class="nav-link" href="{{ route('barang.index') }}">Barang</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('barang-scanner') ? 'active' : '' }}" href="{{ route('barang.scanner') }}">
+              <i class="mdi mdi-qrcode-scan"></i> Barcode Scanner
+            </a>
+          </li>
         </ul>
       </div>
     </li>
