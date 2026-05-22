@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Papan Antrian - Sistem Antrian Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -82,6 +81,33 @@
             }
         }
 
+        /* Antrian list item animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .antrian-item {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .antrian-item:nth-child(1) { animation-delay: 0.05s; }
+        .antrian-item:nth-child(2) { animation-delay: 0.1s; }
+        .antrian-item:nth-child(3) { animation-delay: 0.15s; }
+        .antrian-item:nth-child(4) { animation-delay: 0.2s; }
+        .antrian-item:nth-child(5) { animation-delay: 0.25s; }
+        .antrian-item:nth-child(6) { animation-delay: 0.3s; }
+        .antrian-item:nth-child(7) { animation-delay: 0.35s; }
+        .antrian-item:nth-child(8) { animation-delay: 0.4s; }
+        .antrian-item:nth-child(9) { animation-delay: 0.45s; }
+        .antrian-item:nth-child(10) { animation-delay: 0.5s; }
+
         .count-badge {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
@@ -106,6 +132,23 @@
 
             .display-card {
                 padding: 2rem 1rem !important;
+            }
+
+            /* Adjust antrian list for mobile */
+            .flex.items-center.justify-between {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .flex.items-center.space-x-4 {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .max-w-xs {
+                max-width: 100%;
             }
         }
 
@@ -132,7 +175,7 @@
     <div class="max-w-4xl w-full">
         <!-- Header -->
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-white mb-2">Papan Antrian Digital</h1>
+            <h1 class="text-4xl font-bold text-white mb-2">Papan Antrian Digital test</h1>
             <p class="text-white/80 text-lg">Sistem Antrian Real-Time</p>
         </div>
 
@@ -160,6 +203,157 @@
             </div>
         </div>
 
+        <!-- Two Column Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Card Kiri: Antrian Menunggu & Terlewat -->
+            <div class="display-card rounded-3xl p-6">
+                <!-- Section: Antrian Menunggu -->
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span class="w-3 h-3 bg-yellow-400 rounded-full mr-2 animate-pulse"></span>
+                        ⏳ Antrian Menunggu
+                    </h3>
+
+                    <div id="antrianMenunggu" class="space-y-2">
+                        @forelse($antrianMenunggu as $index => $antrian)
+                            <div class="antrian-item flex items-center justify-between bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-3 transition-all duration-300 hover:shadow-md" data-id="{{ $antrian->id }}">
+                                <div class="flex items-center space-x-3">
+                                    <!-- Queue Number Badge -->
+                                    <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                                        {{ $index + 1 }}
+                                    </div>
+
+                                    <!-- Nomor Antrian -->
+                                    <div class="flex-shrink-0">
+                                        <div class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-orange-600">
+                                            {{ $antrian->nomor_formatted }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Nama -->
+                                    <div class="flex-grow">
+                                        <div class="text-gray-800 font-semibold truncate max-w-xs">
+                                            {{ $antrian->nama }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Wait Time Badge -->
+                                <div class="flex-shrink-0">
+                                    <div class="bg-white/80 backdrop-blur-sm rounded-lg px-2 py-1 text-xs text-gray-600 font-medium">
+                                        ⏱️ {{ $antrian->created_at->diffForHumans() }}
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center text-gray-400 py-6">
+                                <div class="text-3xl mb-1">✅</div>
+                                <p class="text-sm">Tidak ada antrian menunggu</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                <!-- Section: Antrian Terlewat -->
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                        <span class="w-3 h-3 bg-red-400 rounded-full mr-2"></span>
+                        ⚠️ Antrian Terlewat
+                    </h3>
+
+                    <div id="antrianTerlewat" class="space-y-2">
+                        @forelse($antrianTerlewat as $antrian)
+                            <div class="antrian-item flex items-center justify-between bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-3 transition-all duration-300 hover:shadow-md" data-id="{{ $antrian->id }}">
+                                <div class="flex items-center space-x-3">
+                                    <!-- Nomor Antrian -->
+                                    <div class="flex-shrink-0">
+                                        <div class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-pink-600">
+                                            {{ $antrian->nomor_formatted }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Nama -->
+                                    <div class="flex-grow">
+                                        <div class="text-gray-800 font-semibold truncate max-w-xs">
+                                            {{ $antrian->nama }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Status Badge -->
+                                <div class="flex-shrink-0">
+                                    <div class="bg-red-100 text-red-700 rounded-lg px-2 py-1 text-xs font-medium">
+                                        Terlewat
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center text-gray-400 py-6">
+                                <div class="text-3xl mb-1">🎉</div>
+                                <p class="text-sm">Tidak ada antrian terlewat</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Kanan: Antrian Selesai -->
+            <div class="display-card rounded-3xl p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                    <span class="w-3 h-3 bg-green-400 rounded-full mr-2"></span>
+                    ✅ Antrian Selesai
+                </h3>
+
+                <div id="antrianSelesai" class="space-y-2">
+                    @forelse($antrianSelesai as $index => $antrian)
+                        <div class="antrian-item flex items-center justify-between bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 transition-all duration-300 hover:shadow-md" data-id="{{ $antrian->id }}">
+                            <div class="flex items-center space-x-3">
+                                <!-- Queue Number Badge -->
+                                <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                                    {{ $index + 1 }}
+                                </div>
+
+                                <!-- Nomor Antrian -->
+                                <div class="flex-shrink-0">
+                                    <div class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">
+                                        {{ $antrian->nomor_formatted }}
+                                    </div>
+                                </div>
+
+                                <!-- Nama -->
+                                <div class="flex-grow">
+                                    <div class="text-gray-800 font-semibold truncate max-w-xs">
+                                        {{ $antrian->nama }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Completed Time Badge -->
+                            <div class="flex-shrink-0">
+                                <div class="bg-green-100 text-green-700 rounded-lg px-2 py-1 text-xs font-medium">
+                                    ✅ Selesai
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center text-gray-400 py-6">
+                            <div class="text-3xl mb-1">📋</div>
+                            <p class="text-sm">Belum ada antrian selesai hari ini</p>
+                        </div>
+                    @endforelse
+                </div>
+
+                <!-- Total Counter -->
+                @if($antrianSelesai->count() > 0)
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <div class="text-center text-sm text-gray-600">
+                        <span class="font-semibold">Total {{ $antrianSelesai->count() }}</span> antrian selesai hari ini
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+
         <!-- Status Indicator -->
         <div class="text-center">
             <div id="statusIndicator" class="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-6 py-3">
@@ -178,6 +372,11 @@
             <button id="reconnectBtn" class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium px-6 py-3 rounded-full transition-all duration-300">
                 🔄 Reconnect Connection
             </button>
+
+            <!-- Test Audio Button -->
+            <button id="testAudioBtn" class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium px-6 py-3 rounded-full transition-all duration-300">
+                🔊 Test Audio
+            </button>
         </div>
 
         <!-- Debug Log Container -->
@@ -194,7 +393,6 @@
     <script>
         let audioEnabled = false;
         let lastNomor = null;
-        let lastWaktuDipanggil = null;
         let eventSource = null;
         const dingdongAudio = document.getElementById('dingdong');
         const nomorDisplay = document.getElementById('nomorAntrian');
@@ -328,20 +526,10 @@
                     namaDisplay.textContent = namaText;
                     adjustNamaDisplay(namaText);
 
-                    // Play notification when:
-                    // 1. Nomor berubah (new antrian dipanggil), ATAU
-                    // 2. Waktu dipanggil berubah (recall/panggil ulang)
-                    const currentWaktuDipanggil = data.current_antrian.waktu_dipanggil;
-                    const shouldPlayAudio = (
-                        (lastNomor !== data.current_antrian.nomor) ||
-                        (lastWaktuDipanggil !== currentWaktuDipanggil)
-                    ) && data.current_antrian.status === 'dipanggil';
-
-                    if (shouldPlayAudio) {
-                        console.log('🔊 Playing notification for:', data.current_antrian.nomor, data.current_antrian.nama);
+                    // Play notification only when nomor changes (new antrian dipanggil)
+                    if (lastNomor !== data.current_antrian.nomor && data.current_antrian.status === 'dipanggil') {
                         playNotification(data.current_antrian.nomor, data.current_antrian.nama);
                         lastNomor = data.current_antrian.nomor;
-                        lastWaktuDipanggil = currentWaktuDipanggil;
                     }
                 }
 
@@ -349,9 +537,161 @@
                 if (data.menunggu_count !== undefined) {
                     countDisplay.textContent = `Menunggu: ${data.menunggu_count} antrian`;
                 }
+
+                // Update all three sections
+                if (data.antrian_menunggu) {
+                    updateAntrianMenunggu(data.antrian_menunggu);
+                }
+                if (data.antrian_terlewat) {
+                    updateAntrianTerlewat(data.antrian_terlewat);
+                }
+                if (data.antrian_selesai) {
+                    updateAntrianSelesai(data.antrian_selesai);
+                }
             } catch (error) {
                 console.error('Error handling SSE message:', error);
             }
+        }
+
+        // Update Antrian Menunggu List
+        function updateAntrianMenunggu(antrianList) {
+            const container = document.getElementById('antrianMenunggu');
+
+            if (!antrianList || antrianList.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-400 py-6">
+                        <div class="text-3xl mb-1">✅</div>
+                        <p class="text-sm">Tidak ada antrian menunggu</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            antrianList.forEach((antrian, index) => {
+                html += `
+                    <div class="antrian-item flex items-center justify-between bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-3 transition-all duration-300 hover:shadow-md" data-id="${antrian.id}">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                                ${index + 1}
+                            </div>
+                            <div class="flex-shrink-0">
+                                <div class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-orange-600">
+                                    ${antrian.nomor}
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="text-gray-800 font-semibold truncate max-w-xs">
+                                    ${antrian.nama}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="bg-white/80 backdrop-blur-sm rounded-lg px-2 py-1 text-xs text-gray-600 font-medium">
+                                ⏱️ Menunggu
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Update Antrian Terlewat List
+        function updateAntrianTerlewat(antrianList) {
+            const container = document.getElementById('antrianTerlewat');
+
+            if (!antrianList || antrianList.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-400 py-6">
+                        <div class="text-3xl mb-1">🎉</div>
+                        <p class="text-sm">Tidak ada antrian terlewat</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            antrianList.forEach((antrian) => {
+                html += `
+                    <div class="antrian-item flex items-center justify-between bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-3 transition-all duration-300 hover:shadow-md" data-id="${antrian.id}">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex-shrink-0">
+                                <div class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-pink-600">
+                                    ${antrian.nomor}
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="text-gray-800 font-semibold truncate max-w-xs">
+                                    ${antrian.nama}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="bg-red-100 text-red-700 rounded-lg px-2 py-1 text-xs font-medium">
+                                Terlewat
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Update Antrian Selesai List
+        function updateAntrianSelesai(antrianList) {
+            const container = document.getElementById('antrianSelesai');
+
+            if (!antrianList || antrianList.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-400 py-6">
+                        <div class="text-3xl mb-1">📋</div>
+                        <p class="text-sm">Belum ada antrian selesai hari ini</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            antrianList.forEach((antrian, index) => {
+                html += `
+                    <div class="antrian-item flex items-center justify-between bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 transition-all duration-300 hover:shadow-md" data-id="${antrian.id}">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                                ${index + 1}
+                            </div>
+                            <div class="flex-shrink-0">
+                                <div class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">
+                                    ${antrian.nomor}
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="text-gray-800 font-semibold truncate max-w-xs">
+                                    ${antrian.nama}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="bg-green-100 text-green-700 rounded-lg px-2 py-1 text-xs font-medium">
+                                ✅ Selesai
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Add total counter
+            html += `
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <div class="text-center text-sm text-gray-600">
+                        <span class="font-semibold">Total ${antrianList.length}</span> antrian selesai hari ini
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
         }
 
         // Handle SSE errors
@@ -360,6 +700,111 @@
             if (eventSource) {
                 eventSource.close();
             }
+
+            // Fallback to polling if SSE fails
+            console.log('SSE failed, starting polling mode...');
+            addLog('⚠️ SSE failed, switching to polling mode');
+            startPollingMode();
+        }
+
+        // Polling mode fallback (for Apache compatibility)
+        let pollingInterval = null;
+        let lastData = null;
+
+        function startPollingMode() {
+            if (pollingInterval) return; // Already polling
+
+            // Show polling status
+            statusIndicator.innerHTML = `
+                <div class="w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+                <span class="text-white font-medium">Polling Mode (10s)</span>
+            `;
+
+            // Poll every 10 seconds
+            pollingInterval = setInterval(async function() {
+                try {
+                    const response = await fetch('/?poll-data=1', {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        // Only update if data changed
+                        if (JSON.stringify(data) !== JSON.stringify(lastData)) {
+                            lastData = data;
+
+                            // Update displays
+                            if (data.current_antrian) {
+                                nomorDisplay.textContent = data.current_antrian.nomor;
+                                const namaText = data.current_antrian.nama || 'Menunggu antrian...';
+                                namaDisplay.textContent = namaText;
+                                adjustNamaDisplay(namaText);
+
+                                // Play notification if nomor changed
+                                if (lastNomor !== data.current_antrian.nomor && audioEnabled) {
+                                    playNotification(data.current_antrian.nomor, data.current_antrian.nama);
+                                    lastNomor = data.current_antrian.nomor;
+                                }
+                            }
+
+                            if (data.menunggu_count !== undefined) {
+                                countDisplay.textContent = `Menunggu: ${data.menunggu_count} antrian`;
+                            }
+
+                            if (data.antrian_menunggu) {
+                                updateAntrianMenunggu(data.antrian_menunggu);
+                            }
+                            if (data.antrian_terlewat) {
+                                updateAntrianTerlewat(data.antrian_terlewat);
+                            }
+                            if (data.antrian_selesai) {
+                                updateAntrianSelesai(data.antrian_selesai);
+                            }
+
+                            addLog('✅ Data updated via polling');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Polling error:', error);
+                }
+            }, 10000); // 10 seconds
+
+            // Initial fetch
+            setTimeout(() => {
+                fetch('/?poll-data=1', {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    lastData = data;
+                    if (data.current_antrian) {
+                        nomorDisplay.textContent = data.current_antrian.nomor;
+                        const namaText = data.current_antrian.nama || 'Menunggu antrian...';
+                        namaDisplay.textContent = namaText;
+                        adjustNamaDisplay(namaText);
+                    }
+                    if (data.menunggu_count !== undefined) {
+                        countDisplay.textContent = `Menunggu: ${data.menunggu_count} antrian`;
+                    }
+                    if (data.antrian_menunggu) {
+                        updateAntrianMenunggu(data.antrian_menunggu);
+                    }
+                    if (data.antrian_terlewat) {
+                        updateAntrianTerlewat(data.antrian_terlewat);
+                    }
+                    if (data.antrian_selesai) {
+                        updateAntrianSelesai(data.antrian_selesai);
+                    }
+                    addLog('✅ Initial polling data loaded');
+                })
+                .catch(error => {
+                    console.error('Initial polling error:', error);
+                    addLog('❌ Initial polling failed');
+                });
+            }, 1000);
         }
 
         // Show connection status
@@ -454,30 +899,30 @@
             if (dingdongAudio && canPlayAudio(dingdongAudio)) {
                 dingdongAudio.volume = 0.5;
                 dingdongAudio.play().then(() => {
-                    console.log('✅ MP3 audio loaded successfully');
-                    addLog('✅ MP3 audio loaded successfully');
+                    console.log('✅ MP3 audio test successful');
+                    addLog('✅ MP3 audio test successful');
                 }).catch((error) => {
                     console.log('⚠️ MP3 not available, using Web Audio API fallback:', error);
                     addLog('⚠️ MP3 not available, using Web Audio API fallback');
                     playDingDongSound().then(() => {
-                        console.log('✅ Web Audio API loaded successfully');
-                        addLog('✅ Web Audio API loaded successfully');
+                        console.log('✅ Web Audio API test successful');
+                        addLog('✅ Web Audio API test successful');
                     }).catch(e => {
-                        console.error('❌ Audio failed:', e);
-                        addLog('❌ Audio failed: ' + e.message);
-                        alert('Audio failed. Please check your browser settings and volume.');
+                        console.error('❌ Audio test failed:', e);
+                        addLog('❌ Audio test failed: ' + e.message);
+                        alert('Audio test failed. Please check your browser settings and volume.');
                     });
                 });
             } else {
                 console.log('🔊 Using Web Audio API fallback');
                 addLog('🔊 Using Web Audio API fallback');
                 playDingDongSound().then(() => {
-                    console.log('✅ Web Audio API loaded successfully');
-                    addLog('✅ Web Audio API loaded successfully');
+                    console.log('✅ Web Audio API test successful');
+                    addLog('✅ Web Audio API test successful');
                 }).catch(e => {
-                    console.error('❌ Audio failed:', e);
-                    addLog('❌ Audio failed: ' + e.message);
-                    alert('Audio failed. Please check your browser settings and volume.');
+                    console.error('❌ Audio test failed:', e);
+                    addLog('❌ Audio test failed: ' + e.message);
+                    alert('Audio test failed. Please check your browser settings and volume.');
                 });
             }
         });
@@ -513,6 +958,31 @@
                         reconnectBtn.textContent = '🔄 Reconnect Connection';
                         reconnectBtn.disabled = false;
                     }, 500);
+                });
+            }
+        });
+
+        // Test Audio button handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const testAudioBtn = document.getElementById('testAudioBtn');
+            if (testAudioBtn) {
+                testAudioBtn.addEventListener('click', function() {
+                    console.log('🔊 Testing audio system...');
+                    addLog('🔊 Testing audio system...');
+
+                    // Test with actual notification
+                    const testNomor = 'T001';
+                    const testNama = 'Audio Test';
+
+                    if (!audioEnabled) {
+                        addLog('⚠️ Please enable audio first!');
+                        alert('Please click "Enable Audio & Notifikasi" first!');
+                        return;
+                    }
+
+                    // Test notification
+                    playNotification(testNomor, testNama);
+                    addLog('✅ Audio test triggered!');
                 });
             }
         });
@@ -585,96 +1055,32 @@
             }
         }
 
-        // ElevenLabs TTS function (New - Natural Voice)
-        async function speakNotification(nomor, nama) {
-            try {
-                console.log('🎙️ Generating ElevenLabs TTS for:', nomor, nama);
-                addLog('🎙️ Generating ElevenLabs TTS for: ' + nomor + ' - ' + nama);
-
-                // Call ElevenLabs TTS API
-                const response = await fetch('/api/tts/generate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        nomor: nomor,
-                        nama: nama
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success && data.audio_url) {
-                    // Play the generated audio
-                    const audio = new Audio(data.audio_url);
-                    audio.volume = 1.0;
-
-                    audio.onplay = function() {
-                        console.log('🎵 Playing ElevenLabs TTS audio');
-                        addLog('🎵 Playing ElevenLabs TTS audio');
-                    };
-
-                    audio.onended = function() {
-                        console.log('✅ ElevenLabs TTS completed');
-                        addLog('✅ ElevenLabs TTS completed');
-                    };
-
-                    audio.onerror = function(error) {
-                        console.error('❌ Audio playback error:', error);
-                        addLog('❌ Audio playback error: ' + error.message);
-                        // Fallback ke Web Speech API
-                        fallbackToWebSpeech(nomor, nama);
-                    };
-
-                    await audio.play();
-
-                } else if (data.fallback) {
-                    // Fallback ke Web Speech API jika ElevenLabs gagal
-                    console.log('⚠️ ElevenLabs tidak tersedia, menggunakan fallback');
-                    addLog('⚠️ ElevenLabs tidak tersedia: ' + (data.error || 'Unknown error'));
-                    fallbackToWebSpeech(nomor, nama);
-                } else {
-                    throw new Error(data.message || 'Unknown error');
-                }
-
-            } catch (error) {
-                console.error('❌ ElevenLabs TTS error:', error);
-                addLog('❌ ElevenLabs TTS error: ' + error.message);
-                // Fallback ke Web Speech API
-                fallbackToWebSpeech(nomor, nama);
-            }
-        }
-
-        // Fallback function menggunakan Web Speech API
-        function fallbackToWebSpeech(nomor, nama) {
-            console.log('🔄 Falling back to Web Speech API');
-            addLog('🔄 Using fallback Web Speech API');
-
+        // Speech synthesis function (Improved)
+        function speakNotification(nomor, nama) {
             if ('speechSynthesis' in window) {
                 const message = `Nomor antrian ${nomor}. ${nama}, silakan masuk.`;
                 const utterance = new SpeechSynthesisUtterance(message);
 
                 // Configure Indonesian speech
                 utterance.lang = 'id-ID';
-                utterance.rate = 0.85;
-                utterance.volume = 1.0;
-                utterance.pitch = 1.0;
+                utterance.rate = 0.85;  // Slightly slower for clarity
+                utterance.volume = 1.0; // Maximum volume
+                utterance.pitch = 1.0;  // Normal pitch
 
+                // Event handlers for debugging
                 utterance.onstart = function() {
-                    console.log('🗣️ Fallback speech started');
-                    addLog('🗣️ Fallback speech started');
+                    console.log('🗣️ Speech synthesis started:', message);
+                    addLog('🗣️ Speech synthesis started: ' + message);
                 };
 
                 utterance.onend = function() {
-                    console.log('✅ Fallback speech completed');
-                    addLog('✅ Fallback speech completed');
+                    console.log('✅ Speech synthesis completed');
+                    addLog('✅ Speech synthesis completed');
                 };
 
                 utterance.onerror = function(event) {
-                    console.error('❌ Fallback speech error:', event.error);
-                    addLog('❌ Fallback speech error: ' + event.error);
+                    console.error('❌ Speech synthesis error:', event.error);
+                    addLog('❌ Speech synthesis error: ' + event.error);
                 };
 
                 // Cancel any ongoing speech before starting new one

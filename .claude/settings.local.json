@@ -23,7 +23,9 @@
       "Bash(taskkill /F /IM php.exe)",
       "Bash(taskkill //F //IM php.exe)",
       "Bash(curl -I http://127.0.0.1:8000/)",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :8000)"
     ]
   }
 }

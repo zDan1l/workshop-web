@@ -85,6 +85,33 @@
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
 
+        /* Antrian list item animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .antrian-item {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .antrian-item:nth-child(1) { animation-delay: 0.05s; }
+        .antrian-item:nth-child(2) { animation-delay: 0.1s; }
+        .antrian-item:nth-child(3) { animation-delay: 0.15s; }
+        .antrian-item:nth-child(4) { animation-delay: 0.2s; }
+        .antrian-item:nth-child(5) { animation-delay: 0.25s; }
+        .antrian-item:nth-child(6) { animation-delay: 0.3s; }
+        .antrian-item:nth-child(7) { animation-delay: 0.35s; }
+        .antrian-item:nth-child(8) { animation-delay: 0.4s; }
+        .antrian-item:nth-child(9) { animation-delay: 0.45s; }
+        .antrian-item:nth-child(10) { animation-delay: 0.5s; }
+
         /* Responsive design for mobile */
         @media (max-width: 768px) {
             .nomor-display {
@@ -105,6 +132,23 @@
 
             .display-card {
                 padding: 2rem 1rem !important;
+            }
+
+            /* Adjust antrian list for mobile */
+            .flex.items-center.justify-between {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .flex.items-center.space-x-4 {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .max-w-xs {
+                max-width: 100%;
             }
         }
 
@@ -131,7 +175,7 @@
     <div class="max-w-4xl w-full">
         <!-- Header -->
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-white mb-2">Papan Antrian Digital</h1>
+            <h1 class="text-4xl font-bold text-white mb-2">Papan Antrian Digital test </h1>
             <p class="text-white/80 text-lg">Sistem Antrian (Simple Mode)</p>
         </div>
 
@@ -158,6 +202,52 @@
                 </div>
             </div>
         </div>
+
+        <!-- Antrian Berikutnya (5-10 antrian) -->
+        @if(isset($antrianBerikutnya) && $antrianBerikutnya->count() > 0)
+        <div class="display-card rounded-3xl p-8 mb-6">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">📋 Antrian Berikutnya</h3>
+
+            <div class="space-y-3">
+                @foreach($antrianBerikutnya as $index => $antrian)
+                    <div class="antrian-item flex items-center justify-between bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 transition-all duration-300 hover:shadow-md">
+                        <div class="flex items-center space-x-4">
+                            <!-- Queue Number Badge -->
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                                {{ $index + 1 }}
+                            </div>
+
+                            <!-- Nomor Antrian -->
+                            <div class="flex-shrink-0">
+                                <div class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
+                                    {{ $antrian->nomor_formatted }}
+                                </div>
+                            </div>
+
+                            <!-- Nama -->
+                            <div class="flex-grow">
+                                <div class="text-gray-800 font-semibold truncate max-w-xs md:max-w-md">
+                                    {{ $antrian->nama }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Wait Time Badge -->
+                        <div class="flex-shrink-0">
+                            <div class="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-1.5 text-sm text-gray-600 font-medium">
+                                ⏱️ {{ $antrian->created_at->diffForHumans() }}
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Info Text -->
+            <div class="mt-4 text-center text-sm text-gray-500">
+                Menampilkan {{ $antrianBerikutnya->count() }} antrian berikutnya dari total {{ $menungguCount }} antrian menunggu
+            </div>
+        </div>
+        @endif
 
         <!-- Status Indicator -->
         <div class="text-center">

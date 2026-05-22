@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Antrian;
-use App\Services\ElevenLabsTTS;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -28,17 +27,81 @@ class AntrianController extends Controller
             $currentAntrian = Antrian::dipanggil()->latest()->first();
             $menungguCount = Antrian::menunggu()->count();
 
+            // Get next antrian for "Menunggu" section
+            $antrianMenunggu = Antrian::menunggu()
+                ->orderBy('created_at', 'asc')
+                ->take(5)
+                ->get();
+
+            // Get "Terlewat" antrian
+            $antrianTerlewat = Antrian::terlewat()
+                ->today()
+                ->orderBy('created_at', 'asc')
+                ->take(3)
+                ->get();
+
+            // Get completed antrian for today (latest first)
+            $antrianSelesai = Antrian::selesai()
+                ->today()
+                ->orderBy('updated_at', 'desc')
+                ->take(5)
+                ->get();
+
+            // Handle AJAX polling request
+            if ($request->query('poll-data') == '1') {
+                return response()->json([
+                    'current_antrian' => $currentAntrian ? [
+                        'id' => $currentAntrian->id,
+                        'nomor' => $currentAntrian->nomor_formatted,
+                        'nama' => $currentAntrian->nama,
+                        'status' => $currentAntrian->status
+                    ] : null,
+                    'menunggu_count' => $menungguCount,
+                    'antrian_menunggu' => $antrianMenunggu->map(function($item) {
+                        return [
+                            'id' => $item->id,
+                            'nomor' => $item->nomor_formatted,
+                            'nama' => $item->nama
+                        ];
+                    })->toArray(),
+                    'antrian_terlewat' => $antrianTerlewat->map(function($item) {
+                        return [
+                            'id' => $item->id,
+                            'nomor' => $item->nomor_formatted,
+                            'nama' => $item->nama
+                        ];
+                    })->toArray(),
+                    'antrian_selesai' => $antrianSelesai->map(function($item) {
+                        return [
+                            'id' => $item->id,
+                            'nomor' => $item->nomor_formatted,
+                            'nama' => $item->nama
+                        ];
+                    })->toArray(),
+                    'timestamp' => now()->toIso8601String()
+                ]);
+            }
+
             // Check if user wants simple version (no SSE)
             $simpleMode = $request->query('simple', false);
 
             $view = $simpleMode ? 'antrian.papan-simple' : 'antrian.papan';
 
-            return view($view, compact('currentAntrian', 'menungguCount'));
+            return view($view, compact(
+                'currentAntrian',
+                'menungguCount',
+                'antrianMenunggu',
+                'antrianTerlewat',
+                'antrianSelesai'
+            ));
         } catch (\Exception $e) {
             // Fallback if database query fails
             return view('antrian.papan-simple', [
                 'currentAntrian' => null,
-                'menungguCount' => 0
+                'menungguCount' => 0,
+                'antrianMenunggu' => collect(),
+                'antrianTerlewat' => collect(),
+                'antrianSelesai' => collect()
             ]);
         }
     }
@@ -227,121 +290,6 @@ class AntrianController extends Controller
     }
 
     /**
-     * FASE 3.5: ElevenLabs TTS Methods
-     */
-
-    /**
-     * Generate TTS audio untuk antrian menggunakan ElevenLabs
-     */
-    public function generateTTS(Request $request)
-    {
-        try {
-            $request->validate([
-                'nomor' => 'required|string',
-                'nama' => 'required|string'
-            ]);
-
-            $tts = new ElevenLabsTTS();
-            $audioUrl = $tts->generateQueueSpeech($request->nomor, $request->nama);
-
-            // Check if fallback mode is active
-            if (is_array($audioUrl) && isset($audioUrl['fallback'])) {
-                return response()->json([
-                    'success' => false,
-                    'fallback' => true,
-                    'error' => $audioUrl['error'],
-                    'message' => 'ElevenLabs API tidak tersedia. Menggunakan fallback Web Speech API.'
-                ], 500);
-            }
-
-            return response()->json([
-                'success' => true,
-                'audio_url' => $audioUrl,
-                'message' => 'Audio berhasil digenerate menggunakan ElevenLabs!'
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'message' => 'Gagal generate audio TTS.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Test ElevenLabs API connection
-     */
-    public function testElevenLabs()
-    {
-        try {
-            $tts = new ElevenLabsTTS();
-            $result = $tts->testConnection();
-
-            if ($result['success']) {
-                return response()->json([
-                    'success' => true,
-                    'audio_url' => $result['audio_url'],
-                    'message' => $result['message']
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'error' => $result['error'],
-                    'message' => $result['message']
-                ], 500);
-            }
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'message' => 'Gagal test ElevenLabs API.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Generate custom TTS dengan text spesifik
-     */
-    public function generateCustomTTS(Request $request)
-    {
-        try {
-            $request->validate([
-                'text' => 'required|string',
-                'voice_settings' => 'array' // optional: stability, similarity_boost, style, use_speaker_boost
-            ]);
-
-            $tts = new ElevenLabsTTS();
-            $voiceSettings = $request->input('voice_settings', []);
-            $audioUrl = $tts->generateWithSettings($request->text, $voiceSettings);
-
-            // Check if fallback mode is active
-            if (is_array($audioUrl) && isset($audioUrl['fallback'])) {
-                return response()->json([
-                    'success' => false,
-                    'fallback' => true,
-                    'error' => $audioUrl['error'],
-                    'message' => 'ElevenLabs API tidak tersedia. Menggunakan fallback Web Speech API.'
-                ], 500);
-            }
-
-            return response()->json([
-                'success' => true,
-                'audio_url' => $audioUrl,
-                'message' => 'Audio custom berhasil digenerate!'
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'message' => 'Gagal generate audio custom TTS.'
-            ], 500);
-        }
-    }
-
-    /**
      * FASE 3.4: SSE Stream Implementation
      */
 
@@ -382,15 +330,53 @@ class AntrianController extends Controller
                         $currentAntrian = Antrian::dipanggil()->latest()->first();
                         $menungguCount = Antrian::menunggu()->count();
 
+                        // Get antrian for each section
+                        $antrianMenunggu = Antrian::menunggu()
+                            ->orderBy('created_at', 'asc')
+                            ->take(5)
+                            ->get(['id', 'nomor_formatted', 'nama']);
+
+                        $antrianTerlewat = Antrian::terlewat()
+                            ->today()
+                            ->orderBy('created_at', 'asc')
+                            ->take(3)
+                            ->get(['id', 'nomor_formatted', 'nama']);
+
+                        $antrianSelesai = Antrian::selesai()
+                            ->today()
+                            ->orderBy('updated_at', 'desc')
+                            ->take(5)
+                            ->get(['id', 'nomor_formatted', 'nama']);
+
                         $cachedData = [
                             'current_antrian' => $currentAntrian ? [
                                 'id' => $currentAntrian->id,
                                 'nomor' => $currentAntrian->nomor_formatted,
                                 'nama' => $currentAntrian->nama,
-                                'status' => $currentAntrian->status,
-                                'waktu_dipanggil' => $currentAntrian->waktu_dipanggil ? $currentAntrian->waktu_dipanggil->toIso8601String() : null
+                                'status' => $currentAntrian->status
                             ] : null,
                             'menunggu_count' => $menungguCount,
+                            'antrian_menunggu' => $antrianMenunggu->map(function($item) {
+                                return [
+                                    'id' => $item->id,
+                                    'nomor' => $item->nomor_formatted,
+                                    'nama' => $item->nama
+                                ];
+                            })->toArray(),
+                            'antrian_terlewat' => $antrianTerlewat->map(function($item) {
+                                return [
+                                    'id' => $item->id,
+                                    'nomor' => $item->nomor_formatted,
+                                    'nama' => $item->nama
+                                ];
+                            })->toArray(),
+                            'antrian_selesai' => $antrianSelesai->map(function($item) {
+                                return [
+                                    'id' => $item->id,
+                                    'nomor' => $item->nomor_formatted,
+                                    'nama' => $item->nama
+                                ];
+                            })->toArray(),
                             'timestamp' => now()->toIso8601String()
                         ];
 
