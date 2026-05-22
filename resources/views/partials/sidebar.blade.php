@@ -79,6 +79,14 @@
         </ul>
       </div>
     </li>
+    @if(session('user.role') === 'admin')
+    <li class="nav-item">
+      <a class="nav-link {{ request()->is('admin-antrian*') ? 'active' : '' }}" href="{{ route('antrian.admin.index') }}">
+        <span class="menu-title">Manajemen Antrian</span>
+        <i class="mdi mdi-bell-ring menu-icon"></i>
+      </a>
+    </li>
+    @endif
     <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#menu-pdf" aria-expanded="false" aria-controls="menu-pdf">
         <span class="menu-title">Generator PDF</span>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AntrianController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\DashboardController;
@@ -11,9 +12,39 @@ use App\Http\Controllers\SertifikatController;
 use App\Http\Controllers\WilayahController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+// =============================================
+// PUBLIC ROUTES (No authentication required)
+// =============================================
+
+// Root: Papan Antrian (Queue Display Board)
+Route::get('/', [AntrianController::class, 'indexPapan'])->name('antrian.papan');
+
+// Simple health check route
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+        'timestamp' => now()->toIso8601String(),
+        'database' => \App\Models\Antrian::count() . ' antrian records'
+    ]);
+})->name('health.check');
+
+// Login routes
+Route::get('/login', function () {
     return view('auth.login');
-});
+})->name('login');
+
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Guest registration and ticket access
+Route::get('/guest', [AntrianController::class, 'indexGuest'])->name('antrian.guest');
+Route::post('/antrian', [AntrianController::class, 'store'])
+    ->middleware('throttle:10,1') // Max 10 requests per minute
+    ->name('antrian.store');
+Route::get('/antrian/{id}', [AntrianController::class, 'showGuest'])->name('antrian.show');
+
+// SSE (Server-Sent Events) endpoint for real-time updates
+Route::get('/sse/antrian', [AntrianController::class, 'stream'])->name('antrian.stream');
 
 // Google OAuth Routes
 Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
@@ -23,11 +54,18 @@ Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback
 Route::get('auth/otp', [AuthController::class, 'showOtpForm'])->name('otp.verify.form');
 Route::post('auth/otp', [AuthController::class, 'verifyOtp'])->name('otp.verify');
 
+// ElevenLabs TTS API Routes (Public API untuk frontend)
+Route::prefix('api/tts')->name('tts.')->group(function () {
+    Route::post('/generate', [AntrianController::class, 'generateTTS'])->name('generate');
+    Route::get('/test', [AntrianController::class, 'testElevenLabs'])->name('test');
+    Route::post('/custom', [AntrianController::class, 'generateCustomTTS'])->name('custom');
+});
+
 // Routes khusus admin
 Route::middleware('admin')->group(function () {
     // CRUD Kategori (hanya admin)
     Route::resource('kategori', KategoriController::class);
-    
+
     // CRUD Buku - hanya create, store, edit, update, destroy untuk admin
     Route::resource('buku', BukuController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
 });
@@ -115,4 +153,20 @@ Route::middleware('user')->prefix('sertifikat')->name('sertifikat.')->group(func
     Route::get('/kalibrasi',         [SertifikatController::class, 'kalibrasi'])->name('kalibrasi');
     Route::post('/kalibrasi',        [SertifikatController::class, 'simpanKalibrasi'])->name('simpan-kalibrasi');
     Route::get('/preview-kalibrasi', [SertifikatController::class, 'previewKalibrasi'])->name('preview-kalibrasi');
+});
+
+// =============================================
+// ADMIN QUEUE MANAGEMENT ROUTES
+// =============================================
+Route::middleware(['user', 'admin'])->prefix('admin-antrian')->name('antrian.admin.')->group(function () {
+    Route::get('/', [AntrianController::class, 'indexAdmin'])->name('index');
+});
+
+// Queue management actions (require user + admin middleware)
+Route::middleware(['user', 'admin'])->group(function () {
+    Route::post('/antrian/store-admin', [AntrianController::class, 'createFromAdmin'])->name('antrian.store-admin');
+    Route::post('/antrian/{id}/panggil', [AntrianController::class, 'panggil'])->name('antrian.panggil');
+    Route::post('/antrian/{id}/terlewat', [AntrianController::class, 'markTerlewat'])->name('antrian.terlewat');
+    Route::post('/antrian/{id}/selesai', [AntrianController::class, 'markSelesai'])->name('antrian.selesai');
+    Route::post('/antrian/{id}/recall', [AntrianController::class, 'recall'])->name('antrian.recall');
 });
