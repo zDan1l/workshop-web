@@ -3,7 +3,29 @@
     "allow": [
       "Bash(cd:*)",
       "Bash(composer require:*)",
-      "Bash(php artisan:*)"
+      "Bash(php artisan:*)",
+      "Bash(php -l routes/web.php)",
+      "Bash(php *)",
+      "Bash(curl -s http://127.0.0.1:8000)",
+      "Bash(curl -s http://127.0.0.1:8000/guest)",
+      "Bash(curl -X POST http://127.0.0.1:8000/antrian -H 'Content-Type: application/x-www-form-urlencoded' -d 'nama=Test+User+Fase+8&_token=test' -L -s)",
+      "Bash(curl -s http://127.0.0.1:8000/)",
+      "Bash(curl -s http://127.0.0.1:8000/admin-antrian)",
+      "Bash(timeout 3 curl -s http://127.0.0.1:8000/sse/antrian)",
+      "Bash(curl -s http://127.0.0.1:8000/sse/antrian --max-time 2)",
+      "Bash(curl -s http://127.0.0.1:8000/sse/antrian --max-time 3)",
+      "Bash(timeout 5 curl -s http://127.0.0.1:8000/sse/antrian)",
+      "Bash(curl -s http://127.0.0.1:8000/antrian/1)",
+      "Bash(curl -s http://localhost:8001/)",
+      "Bash(curl -I http://localhost:8000/)",
+      "Bash(curl -s http://localhost:8000/)",
+      "Bash(tasklist)",
+      "Bash(taskkill /F /IM php.exe)",
+      "Bash(taskkill //F //IM php.exe)",
+      "Bash(curl -I http://127.0.0.1:8000/)",
+      "Bash(curl *)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :8000)"
     ]
   }
 }

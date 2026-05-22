@@ -41,7 +41,7 @@
         </div>
         <h4>Hello! let's get started</h4>
         <h6 class="font-weight-light">Sign in to continue.</h6>
-        <form class="pt-3" method="POST" action="{{ route('login') }}">
+        <form class="pt-3" method="POST" action="{{ route('login.post') }}">
             @csrf
             <div class="form-group">
                 <input type="email" name="email" class="form-control form-control-lg" placeholder="Email" value="{{ old('email') }}" required>
@@ -55,7 +55,11 @@
                     <span class="text-danger">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="d-flex justify-content-end mb-2">
+            <div class="d-flex justify-content-between mb-2">
+                <div class="form-check">
+                    <input type="checkbox" name="remember" class="form-check-input" id="remember">
+                    <label class="form-check-label small" for="remember">Remember me</label>
+                </div>
                 <a href="{{ route('password.request') }}" class="text-primary small">Forgot Password?</a>
             </div>
             <div class="mt-3 d-grid gap-2">

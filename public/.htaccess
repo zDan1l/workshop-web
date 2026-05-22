@@ -11,7 +11,7 @@
 
     # Handle X-XSRF-Token Header
     RewriteCond %{HTTP:x-xsrf-token} .
-    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:x-xsrf-token}]
 
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
@@ -22,4 +22,14 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+
+    # Enable SSE for Apache
+    <IfModule mod_headers.c>
+        # Enable CORS for SSE endpoints
+        SetEnvIf Request_URI "^/sse/" CORS_ALLOWED
+        Header set Access-Control-Allow-Origin "*" env=CORS_ALLOWED
+        Header set Access-Control-Allow-Credentials "true" env=CORS_ALLOWED
+        Header set Cache-Control "no-cache" env=CORS_ALLOWED
+        Header set Connection "keep-alive" env=CORS_ALLOWED
+    </IfModule>
 </IfModule>

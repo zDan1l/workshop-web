@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Format Antrian Baru</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .test-container {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .format-info {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .format-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .format-table th, .format-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .format-table th {
+            background: #667eea;
+            color: white;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .example-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border: 1px solid #dee2e6;
+        }
+        .letter-badge {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎯 Format Antrian Baru - Test Page</h1>
+
+        <!-- Format Information -->
+        <div class="format-info">
+            <h3>📋 Format Baru Sistem Antrian</h3>
+            <p><strong>Format:</strong> <code>HURUF + 4 DIGIT</code></p>
+            <p><strong>Contoh:</strong> <code>A0001</code>, <code>B0001</code>, <code>C0001</code></p>
+
+            <table class="format-table">
+                <tr>
+                    <th>Hari</th>
+                    <th>Huruf</th>
+                    <th>Contoh Format</th>
+                </tr>
+                <tr>
+                    <td>Senin</td>
+                    <td><span class="letter-badge">A</span></td>
+                    <td>A0001, A0002, A0003...</td>
+                </tr>
+                <tr>
+                    <td>Selasa</td>
+                    <td><span class="letter-badge">B</span></td>
+                    <td>B0001, B0002, B0003...</td>
+                </tr>
+                <tr>
+                    <td>Rabu</td>
+                    <td><span class="letter-badge">C</span></td>
+                    <td>C0001, C0002, C0003...</td>
+                </tr>
+                <tr>
+                    <td>Kamis</td>
+                    <td><span class="letter-badge">D</span></td>
+                    <td>D0001, D0002, D0003...</td>
+                </tr>
+                <tr>
+                    <td>Jumat</td>
+                    <td><span class="letter-badge">E</span></td>
+                    <td>E0001, E0002, E0003...</td>
+                </tr>
+                <tr>
+                    <td>Sabtu</td>
+                    <td><span class="letter-badge">F</span></td>
+                    <td>F0001, F0002, F0003...</td>
+                </tr>
+                <tr>
+                    <td>Minggu</td>
+                    <td><span class="letter-badge">G</span></td>
+                    <td>G0001, G0002, G0003...</td>
+                </tr>
+            </table>
+
+            <div class="example-box">
+                <strong>✨ Fitur Utama:</strong>
+                <ul>
+                    <li>✅ Reset otomatis setiap hari ke nomor 1</li>
+                    <li>✅ Huruf berubah sesuai hari (A-G)</li>
+                    <li>✅ Format lebih profesional dan mudah diingat</li>
+                    <li>✅ 4 digit dengan leading zero (0001, 0002, dst)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Test Section -->
+        <div class="format-info">
+            <h3>🧪 Test Format Antrian</h3>
+
+            <div class="example-box">
+                <strong>Hari Ini:</strong> <span id="currentDay"></span><br>
+                <strong>Huruf Hari Ini:</strong> <span id="currentLetter"></span><br>
+                <strong>Format Hari Ini:</strong> <span id="currentFormat"></span><br>
+                <strong>Next Queue Number:</strong> <span id="nextQueue"></span>
+            </div>
+
+            <button onclick="testFormat()">Test Format Hari Ini</button>
+            <button onclick="openAdmin()">Buka Admin Dashboard</button>
+            <button onclick="openPapan()">Buka Papan Antrian</button>
+
+            <div id="testStatus" class="status info">Klik tombol untuk test format baru</div>
+        </div>
+
+        <!-- Migration Info -->
+        <div class="format-info">
+            <h3>🔄 Informasi Migration</h3>
+
+            <div class="example-box">
+                <strong>Kolom Baru yang Ditambahkan:</strong>
+                <ul>
+                    <li><code>nomor_urut</code> - Integer untuk query (1, 2, 3, dst)</li>
+                    <li><code>tanggal</code> - Tanggal antrian (2026-05-19, dst)</li>
+                </ul>
+                <br>
+                <strong>Kolom yang Dimodifikasi:</strong>
+                <ul>
+                    <li><code>nomor_antrian</code> - Format display (A0001, B0001, dst)</li>
+                </ul>
+                <br>
+                <strong>Fitur Otomatis:</strong>
+                <ul>
+                    <li>✅ Auto-generate nomor_urut (berurutan per hari)</li>
+                    <li>✅ Auto-generate tanggal (hari ini)</li>
+                    <li>✅ Auto-generate nomor_antrian (format A0001)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Test Steps -->
+        <div class="format-info">
+            <h3>📝 Langkah Test</h3>
+            <ol>
+                <li>Buka Admin Dashboard dan tambah antrian baru</li>
+                <li>Perhatikan format antrian yang digenerate (misal: A0001)</li>
+                <li>Tambahkan beberapa antrian lagi untuk test urutan</li>
+                <li>Panggil antrian dan dengarkan format di audio</li>
+                <li>Besok sistem otomatis reset ke B0001 (jika selasa)</li>
+            </ol>
+        </div>
+
+        <!-- Audio Test Format -->
+        <div class="format-info">
+            <h3>🔊 Test Audio dengan Format Baru</h3>
+            <div class="example-box">
+                <strong>Format Speech:</strong><br>
+                <code>"Nomor antrian A0001. [NAMA], silakan masuk."</code>
+            </div>
+            <button onclick="testSpeechFormat()">Test Speech Format</button>
+            <div id="speechStatus" class="status info">Klik untuk test speech dengan format baru</div>
+        </div>
+    </div>
+
+    <script>
+        // Get current day information
+        function getDayInfo() {
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const letters = ['G', 'A', 'B', 'C', 'D', 'E', 'F'];
+            const today = new Date();
+            const dayIndex = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+            return {
+                dayName: days[dayIndex],
+                letter: letters[dayIndex],
+                exampleFormat: letters[dayIndex] + '0001'
+            };
+        }
+
+        // Test format functionality
+        function testFormat() {
+            const dayInfo = getDayInfo();
+            const statusDiv = document.getElementById('testStatus');
+
+            const message = `
+✅ Format Test Results:
+• Hari ini: ${dayInfo.dayName}
+• Huruf hari ini: ${dayInfo.letter}
+• Format contoh: ${dayInfo.exampleFormat}
+• Next queue: ${dayInfo.exampleFormat}
+
+Silakan buka admin dashboard untuk test format nyata!
+            `;
+
+            statusDiv.textContent = message;
+            statusDiv.className = 'status success';
+        }
+
+        // Test speech format
+        function testSpeechFormat() {
+            const dayInfo = getDayInfo();
+            const testNomor = dayInfo.exampleFormat;
+            const testNama = 'Budi Santoso';
+
+            if ('speechSynthesis' in window) {
+                const message = `Nomor antrian ${testNomor}. ${testNama}, silakan masuk.`;
+                const utterance = new SpeechSynthesisUtterance(message);
+
+                utterance.lang = 'id-ID';
+                utterance.rate = 0.85;
+                utterance.volume = 1.0;
+
+                utterance.onstart = () => {
+                    document.getElementById('speechStatus').textContent =
+                        `🗣️ Speaking: "${message}"`;
+                    document.getElementById('speechStatus').className = 'status success';
+                };
+
+                utterance.onend = () => {
+                    document.getElementById('speechStatus').textContent =
+                        '✅ Speech test completed!';
+                };
+
+                speechSynthesis.cancel();
+                speechSynthesis.speak(utterance);
+            } else {
+                document.getElementById('speechStatus').textContent =
+                    '❌ Web Speech API not supported';
+                document.getElementById('speechStatus').className = 'status error';
+            }
+        }
+
+        // Open admin dashboard
+        function openAdmin() {
+            window.open('/admin-antrian', '_blank');
+        }
+
+        // Open papan antrian
+        function openPapan() {
+            window.open('/', '_blank');
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            const dayInfo = getDayInfo();
+            document.getElementById('currentDay').textContent = dayInfo.dayName;
+            document.getElementById('currentLetter').textContent = dayInfo.letter;
+            document.getElementById('currentFormat').textContent = dayInfo.exampleFormat;
+
+            // Simulate next queue calculation
+            const nextNum = '0001';
+            document.getElementById('nextQueue').textContent = dayInfo.letter + nextNum;
+        });
+    </script>
+</body>
+</html>
