@@ -393,6 +393,7 @@
     <script>
         let audioEnabled = false;
         let lastNomor = null;
+        let lastWaktuDipanggil = null;
         let eventSource = null;
         const dingdongAudio = document.getElementById('dingdong');
         const nomorDisplay = document.getElementById('nomorAntrian');
@@ -526,10 +527,18 @@
                     namaDisplay.textContent = namaText;
                     adjustNamaDisplay(namaText);
 
-                    // Play notification only when nomor changes (new antrian dipanggil)
-                    if (lastNomor !== data.current_antrian.nomor && data.current_antrian.status === 'dipanggil') {
+                    // Play notification for new calls or recalls (when waktu_dipanggil changes)
+                    const shouldPlaySound = (
+                        data.current_antrian.status === 'dipanggil' && (
+                            lastNomor !== data.current_antrian.nomor || // New antrian
+                            (lastNomor === data.current_antrian.nomor && lastWaktuDipanggil !== data.current_antrian.waktu_dipanggil) // Recall
+                        )
+                    );
+
+                    if (shouldPlaySound) {
                         playNotification(data.current_antrian.nomor, data.current_antrian.nama);
                         lastNomor = data.current_antrian.nomor;
+                        lastWaktuDipanggil = data.current_antrian.waktu_dipanggil;
                     }
                 }
 
@@ -717,10 +726,10 @@
             // Show polling status
             statusIndicator.innerHTML = `
                 <div class="w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
-                <span class="text-white font-medium">Polling Mode (10s)</span>
+                <span class="text-white font-medium">Polling Mode (3s)</span>
             `;
 
-            // Poll every 10 seconds
+            // Poll every 3 seconds for faster updates
             pollingInterval = setInterval(async function() {
                 try {
                     const response = await fetch('/?poll-data=1', {
@@ -743,10 +752,18 @@
                                 namaDisplay.textContent = namaText;
                                 adjustNamaDisplay(namaText);
 
-                                // Play notification if nomor changed
-                                if (lastNomor !== data.current_antrian.nomor && audioEnabled) {
+                                // Play notification for new calls or recalls (when waktu_dipanggil changes)
+                                const shouldPlaySound = (
+                                    data.current_antrian.status === 'dipanggil' && audioEnabled && (
+                                        lastNomor !== data.current_antrian.nomor || // New antrian
+                                        (lastNomor === data.current_antrian.nomor && lastWaktuDipanggil !== data.current_antrian.waktu_dipanggil) // Recall
+                                    )
+                                );
+
+                                if (shouldPlaySound) {
                                     playNotification(data.current_antrian.nomor, data.current_antrian.nama);
                                     lastNomor = data.current_antrian.nomor;
+                                    lastWaktuDipanggil = data.current_antrian.waktu_dipanggil;
                                 }
                             }
 
@@ -770,7 +787,7 @@
                 } catch (error) {
                     console.error('Polling error:', error);
                 }
-            }, 10000); // 10 seconds
+            }, 3000); // 3 seconds - faster updates
 
             // Initial fetch
             setTimeout(() => {
@@ -785,6 +802,8 @@
                         const namaText = data.current_antrian.nama || 'Menunggu antrian...';
                         namaDisplay.textContent = namaText;
                         adjustNamaDisplay(namaText);
+                        lastNomor = data.current_antrian.nomor;
+                        lastWaktuDipanggil = data.current_antrian.waktu_dipanggil;
                     }
                     if (data.menunggu_count !== undefined) {
                         countDisplay.textContent = `Menunggu: ${data.menunggu_count} antrian`;
@@ -936,6 +955,9 @@
                 namaDisplay.textContent = initialNama;
                 adjustNamaDisplay(initialNama);
                 lastNomor = '{{ $currentAntrian->nomor_formatted }}';
+                @if($currentAntrian->waktu_dipanggil)
+                    lastWaktuDipanggil = '{{ $currentAntrian->waktu_dipanggil->toIso8601String() }}';
+                @endif
             @endif
 
             @if(isset($menunggiCount))

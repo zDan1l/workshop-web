@@ -253,10 +253,10 @@
 <script>
 // Function to call terlewat antrian
 function panggilTerlewat(id) {
-    if (confirm('Panggil ulang antrian ini?')) {
+    if (confirm('Panggil ulang antrian terlewat ini?')) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '/antrian/' + id + '/panggil';
+        form.action = '/antrian/' + id + '/recall';
 
         const csrf = document.createElement('input');
         csrf.type = 'hidden';

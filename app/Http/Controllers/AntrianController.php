@@ -27,8 +27,9 @@ class AntrianController extends Controller
             $currentAntrian = Antrian::dipanggil()->latest()->first();
             $menungguCount = Antrian::menunggu()->count();
 
-            // Get next antrian for "Menunggu" section
+            // Get next antrian for "Menunggu" section (only today)
             $antrianMenunggu = Antrian::menunggu()
+                ->today()
                 ->orderBy('created_at', 'asc')
                 ->take(5)
                 ->get();
@@ -54,7 +55,9 @@ class AntrianController extends Controller
                         'id' => $currentAntrian->id,
                         'nomor' => $currentAntrian->nomor_formatted,
                         'nama' => $currentAntrian->nama,
-                        'status' => $currentAntrian->status
+                        'status' => $currentAntrian->status,
+                        'waktu_dipanggil' => $currentAntrian->waktu_dipanggil ? $currentAntrian->waktu_dipanggil->toIso8601String() : null,
+                        'updated_at' => $currentAntrian->updated_at->toIso8601String()
                     ] : null,
                     'menunggu_count' => $menungguCount,
                     'antrian_menunggu' => $antrianMenunggu->map(function($item) {
@@ -178,9 +181,9 @@ class AntrianController extends Controller
     {
         $antrian = Antrian::findOrFail($id);
 
-        // Mark any currently called antrian as selesai
+        // Mark any currently called antrian as terlewat (not selesai)
         Antrian::dipanggil()->update([
-            'status' => 'selesai'
+            'status' => 'terlewat'
         ]);
 
         // Update the antrian being called
@@ -263,22 +266,36 @@ class AntrianController extends Controller
     }
 
     /**
-     * Recall the currently calling antrian
+     * Recall the currently calling antrian or re-call a missed antrian
      */
     public function recall($id)
     {
         $antrian = Antrian::findOrFail($id);
 
-        // Only allow recall for antrian that's currently being called
-        if ($antrian->status !== 'dipanggil') {
+        // Allow recall for antrian that's currently being called or was missed
+        if (!in_array($antrian->status, ['dipanggil', 'terlewat'])) {
             return redirect()->route('antrian.admin.index')
-                ->with('error', "Hanya bisa memanggil ulang antrian yang sedang dipanggil.");
+                ->with('error', "Hanya bisa memanggil ulang antrian yang sedang dipanggil atau terlewat.");
         }
 
-        // Update waktu_dipanggil to trigger SSE broadcast
-        $antrian->update([
-            'waktu_dipanggil' => now()
-        ]);
+        // If recalling a missed antrian, mark the currently calling antrian as terlewat first
+        if ($antrian->status === 'terlewat') {
+            // Mark any currently called antrian as terlewat
+            Antrian::dipanggil()->update([
+                'status' => 'terlewat'
+            ]);
+
+            // Change status from terlewat to dipanggil
+            $antrian->update([
+                'status' => 'dipanggil',
+                'waktu_dipanggil' => now()
+            ]);
+        } else {
+            // Update waktu_dipanggil to trigger SSE broadcast for currently calling antrian
+            $antrian->update([
+                'waktu_dipanggil' => now()
+            ]);
+        }
 
         // Clear cache and trigger SSE update
         Cache::forget('admin_dashboard_' . date('Y-m-d'));
@@ -315,8 +332,8 @@ class AntrianController extends Controller
         while (true) {
             $counter++;
 
-            // Check for updates via cache only every 3 seconds to reduce load
-            if ($counter % 3 === 0) {
+            // Check for updates via cache every 1 second for faster response
+            if ($counter % 1 === 0) {
                 $currentUpdate = Cache::get('antrian_updated');
 
                 if ($currentUpdate && $currentUpdate != $lastUpdate) {
@@ -332,6 +349,7 @@ class AntrianController extends Controller
 
                         // Get antrian for each section
                         $antrianMenunggu = Antrian::menunggu()
+                            ->today()
                             ->orderBy('created_at', 'asc')
                             ->take(5)
                             ->get(['id', 'nomor_formatted', 'nama']);
@@ -353,7 +371,9 @@ class AntrianController extends Controller
                                 'id' => $currentAntrian->id,
                                 'nomor' => $currentAntrian->nomor_formatted,
                                 'nama' => $currentAntrian->nama,
-                                'status' => $currentAntrian->status
+                                'status' => $currentAntrian->status,
+                                'waktu_dipanggil' => $currentAntrian->waktu_dipanggil ? $currentAntrian->waktu_dipanggil->toIso8601String() : null,
+                                'updated_at' => $currentAntrian->updated_at->toIso8601String()
                             ] : null,
                             'menunggu_count' => $menungguCount,
                             'antrian_menunggu' => $antrianMenunggu->map(function($item) {
@@ -380,8 +400,8 @@ class AntrianController extends Controller
                             'timestamp' => now()->toIso8601String()
                         ];
 
-                        // Cache for 2 seconds
-                        Cache::put($cacheKey, $cachedData, 2);
+                        // Cache for 1 second for faster updates
+                        Cache::put($cacheKey, $cachedData, 1);
                     }
 
                     // Send SSE message
@@ -404,8 +424,8 @@ class AntrianController extends Controller
                 flush();
             }
 
-            // Sleep to prevent excessive CPU usage
-            sleep(1);
+            // Sleep to prevent excessive CPU usage (0.5s for faster response)
+            sleep(0.5);
 
             // Check if connection is still alive
             if (connection_aborted()) {
