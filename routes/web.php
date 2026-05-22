@@ -54,6 +54,13 @@ Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback
 Route::get('auth/otp', [AuthController::class, 'showOtpForm'])->name('otp.verify.form');
 Route::post('auth/otp', [AuthController::class, 'verifyOtp'])->name('otp.verify');
 
+// ElevenLabs TTS API Routes (Public API untuk frontend)
+Route::prefix('api/tts')->name('tts.')->group(function () {
+    Route::post('/generate', [AntrianController::class, 'generateTTS'])->name('generate');
+    Route::get('/test', [AntrianController::class, 'testElevenLabs'])->name('test');
+    Route::post('/custom', [AntrianController::class, 'generateCustomTTS'])->name('custom');
+});
+
 // Routes khusus admin
 Route::middleware('admin')->group(function () {
     // CRUD Kategori (hanya admin)
