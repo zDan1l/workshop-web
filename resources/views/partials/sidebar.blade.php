@@ -87,6 +87,54 @@
       </a>
     </li>
     @endif
+    @if(session('user.role') === 'admin')
+    <li class="nav-item">
+      <a class="nav-link {{ request()->is('nfc-admin*') ? 'active' : '' }}" data-bs-toggle="collapse" href="#menu-nfc" aria-expanded="false" aria-controls="menu-nfc">
+        <span class="menu-title">Absensi NFC</span>
+        <i class="menu-arrow"></i>
+        <i class="mdi mdi-nfc menu-icon"></i>
+      </a>
+      <div class="collapse {{ request()->is('nfc-admin*') ? 'show' : '' }}" id="menu-nfc">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('nfc-admin') ? 'active' : '' }}" href="{{ route('nfc.dashboard') }}">
+              <i class="mdi mdi-view-dashboard me-1"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('nfc-admin/mahasiswa*') ? 'active' : '' }}" href="{{ route('nfc.mahasiswa.index') }}">
+              <i class="mdi mdi-account me-1"></i> Mahasiswa
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('nfc-admin/dosen*') ? 'active' : '' }}" href="{{ route('nfc.dosen.index') }}">
+              <i class="mdi mdi-account-tie me-1"></i> Dosen
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('nfc-admin/kelas*') ? 'active' : '' }}" href="{{ route('nfc.kelas.index') }}">
+              <i class="mdi mdi-school me-1"></i> Kelas
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('nfc-admin/sesi*') ? 'active' : '' }}" href="{{ route('nfc.sesi.index') }}">
+              <i class="mdi mdi-calendar-clock me-1"></i> Sesi Kuliah
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('nfc-admin/absensi*') ? 'active' : '' }}" href="{{ route('nfc.absensi.index') }}">
+              <i class="mdi mdi-clipboard-check me-1"></i> Laporan Absensi
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->is('nfc-admin/scanner') ? 'active' : '' }}" href="{{ route('nfc.scanner') }}" target="_blank">
+              <i class="mdi mdi-cellphone-android me-1"></i> NFC Scanner
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+    @endif
     <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#menu-pdf" aria-expanded="false" aria-controls="menu-pdf">
         <span class="menu-title">Generator PDF</span>

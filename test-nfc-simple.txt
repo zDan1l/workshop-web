@@ -1,0 +1,106 @@
+# ================================================
+# PERINTAH CURL UNTUK TESTING SISTEM NFC
+# Version: TANPA PRETTY PRINT (Lebih Ringkas)
+# ================================================
+
+# BASE URL
+# Gunakan salah satu:
+# - http://localhost:8000 (jika pakai php artisan serve)
+# - http://app-laravel-workshop.test (jika pakai Laragon)
+
+# ================================================
+# TEST 1: Cek Health Server
+# ================================================
+curl -s http://app-laravel-workshop.test/health
+
+# ================================================
+# TEST 2: Scan NFC - Mahasiswa Terdaftar (Andi)
+# ================================================
+curl -X POST http://app-laravel-workshop.test/api/nfc/absensi/scan -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"nfc_serial\": \"04:A3:55:B2:C1\", \"sesi_id\": 1}"
+
+# ================================================
+# TEST 3: Scan NFC - Mahasiswa Terdaftar (Dewi)
+# ================================================
+curl -X POST http://app-laravel-workshop.test/api/nfc/absensi/scan -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"nfc_serial\": \"04:D0:22:E3:F4\", \"sesi_id\": 1}"
+
+# ================================================
+# TEST 4: Scan NFC - Kartu Tidak Terdaftar
+# ================================================
+curl -X POST http://app-laravel-workshop.test/api/nfc/absensi/scan -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"nfc_serial\": \"04:FF:FF:FF:FF:FF:FF\", \"sesi_id\": 1}"
+
+# ================================================
+# TEST 5: Scan Duplikat (Andi Scan Lagi)
+# ================================================
+curl -X POST http://app-laravel-workshop.test/api/nfc/absensi/scan -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"nfc_serial\": \"04:A3:55:B2:C1\", \"sesi_id\": 1}"
+
+# ================================================
+# TEST 6: Scan dengan Sesi Tidak Aktif
+# ================================================
+curl -X POST http://app-laravel-workshop.test/api/nfc/absensi/scan -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"nfc_serial\": \"04:A3:55:B2:C1\", \"sesi_id\": 2}"
+
+# ================================================
+# TEST 7: Lihat Daftar Absensi per Sesi
+# ================================================
+curl -X GET http://app-laravel-workshop.test/api/nfc/absensi/sesi/1 -H "Accept: application/json"
+
+# ================================================
+# TEST 8: Lihat Daftar Semua Mahasiswa
+# ================================================
+curl -X GET http://app-laravel-workshop.test/api/nfc/mahasiswa -H "Accept: application/json"
+
+# ================================================
+# TEST 9: Create Mahasiswa Baru
+# ================================================
+curl -X POST http://app-laravel-workshop.test/api/nfc/mahasiswa -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"nim\": \"20210010\", \"nama\": \"Joko Widodo\", \"email\": \"joko@student.univ.ac.id\"}"
+
+# ================================================
+# TEST 10: Daftarkan Kartu NFC ke Mahasiswa
+# ================================================
+curl -X POST http://app-laravel-workshop.test/api/nfc/mahasiswa/daftarkan-kartu -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"nim\": \"20210007\", \"nfc_serial\": \"04:A1:B2:C3:D4:E5\"}"
+
+# ================================================
+# TEST 11: Scan dengan Kartu Baru
+# ================================================
+curl -X POST http://app-laravel-workshop.test/api/nfc/absensi/scan -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"nfc_serial\": \"04:A1:B2:C3:D4:E5\", \"sesi_id\": 1}"
+
+# ================================================
+# TEST 12: Validasi - Serial Number Kosong
+# ================================================
+curl -X POST http://app-laravel-workshop.test/api/nfc/absensi/scan -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"nfc_serial\": \"\", \"sesi_id\": 1}"
+
+# ================================================
+# TEST 13: Validasi - Sesi ID Tidak Valid
+# ================================================
+curl -X POST http://app-laravel-workshop.test/api/nfc/absensi/scan -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"nfc_serial\": \"04:A3:55:B2:C1\", \"sesi_id\": 9999}"
+
+# ================================================
+# DATA TESTING YANG TERSEDIA
+# ================================================
+# Sesi Aktif: ID 1 (Pemrograman Web Lanjut)
+#
+# Mahasiswa dengan NFC Serial:
+# - Andi Pratama (20210001) -> 04:A3:55:B2:C1
+# - Budi Hartono (20210002) -> 04:B2:44:C1:D2
+# - Citra Lestari (20210003) -> 04:C1:33:D2:E3
+# - Dewi Anggraini (20210004) -> 04:D0:22:E3:F4
+# - Eko Prasetyo (20210005) -> 04:E1:11:F4:A5
+# - Fitri Handayani (20210006) -> 04:F1:22:A3:B4:C5
+#
+# Mahasiswa Tanpa NFC (bisa didaftarkan):
+# - Gunawan Wijaya (20210007)
+# - Hesti Purnamasari (20210008)
+
+# ================================================
+# SOLUSI JIKA MASIH ERROR
+# ================================================
+# 1. Redirect ke file:
+# curl [perintah] > output.txt
+#
+# 2. Tanpa pretty print:
+# curl -s [URL] (tanpa -o atau redirect)
+#
+# 3. Cek response code saja:
+# curl -s -o /dev/null -w "%{http_code}" [URL]
+#
+# 4. Test via browser (paling mudah):
+# Buka: http://app-laravel-workshop.test/nfc-admin/scanner

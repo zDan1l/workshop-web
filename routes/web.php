@@ -6,6 +6,7 @@ use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\NFCAdminController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\SertifikatController;
@@ -169,4 +170,63 @@ Route::middleware(['user', 'admin'])->group(function () {
     Route::post('/antrian/{id}/terlewat', [AntrianController::class, 'markTerlewat'])->name('antrian.terlewat');
     Route::post('/antrian/{id}/selesai', [AntrianController::class, 'markSelesai'])->name('antrian.selesai');
     Route::post('/antrian/{id}/recall', [AntrianController::class, 'recall'])->name('antrian.recall');
+});
+
+// =============================================
+// NFC ABSENSI SYSTEM ADMIN ROUTES
+// =============================================
+Route::middleware(['user', 'admin'])->prefix('nfc-admin')->name('nfc.')->group(function () {
+    // Dashboard
+    Route::get('/', [NFCAdminController::class, 'dashboard'])->name('dashboard');
+
+    // Mahasiswa Management
+    Route::prefix('mahasiswa')->name('mahasiswa.')->group(function () {
+        Route::get('/', [NFCAdminController::class, 'mahasiswaIndex'])->name('index');
+        Route::get('/create', [NFCAdminController::class, 'mahasiswaCreate'])->name('create');
+        Route::post('/', [NFCAdminController::class, 'mahasiswaStore'])->name('store');
+        Route::get('/{mahasiswa}/edit', [NFCAdminController::class, 'mahasiswaEdit'])->name('edit');
+        Route::put('/{mahasiswa}', [NFCAdminController::class, 'mahasiswaUpdate'])->name('update');
+        Route::delete('/{mahasiswa}', [NFCAdminController::class, 'mahasiswaDestroy'])->name('destroy');
+    });
+
+    // Dosen Management
+    Route::prefix('dosen')->name('dosen.')->group(function () {
+        Route::get('/', [NFCAdminController::class, 'dosenIndex'])->name('index');
+        Route::get('/create', [NFCAdminController::class, 'dosenCreate'])->name('create');
+        Route::post('/', [NFCAdminController::class, 'dosenStore'])->name('store');
+        Route::get('/{dosen}/edit', [NFCAdminController::class, 'dosenEdit'])->name('edit');
+        Route::put('/{dosen}', [NFCAdminController::class, 'dosenUpdate'])->name('update');
+        Route::delete('/{dosen}', [NFCAdminController::class, 'dosenDestroy'])->name('destroy');
+    });
+
+    // Kelas Management
+    Route::prefix('kelas')->name('kelas.')->group(function () {
+        Route::get('/', [NFCAdminController::class, 'kelasIndex'])->name('index');
+        Route::get('/create', [NFCAdminController::class, 'kelasCreate'])->name('create');
+        Route::post('/', [NFCAdminController::class, 'kelasStore'])->name('store');
+        Route::get('/{kelas}/edit', [NFCAdminController::class, 'kelasEdit'])->name('edit');
+        Route::put('/{kelas}', [NFCAdminController::class, 'kelasUpdate'])->name('update');
+        Route::delete('/{kelas}', [NFCAdminController::class, 'kelasDestroy'])->name('destroy');
+    });
+
+    // Sesi Kuliah Management
+    Route::prefix('sesi')->name('sesi.')->group(function () {
+        Route::get('/', [NFCAdminController::class, 'sesiIndex'])->name('index');
+        Route::get('/create', [NFCAdminController::class, 'sesiCreate'])->name('create');
+        Route::post('/', [NFCAdminController::class, 'sesiStore'])->name('store');
+        Route::get('/{sesi}/edit', [NFCAdminController::class, 'sesiEdit'])->name('edit');
+        Route::put('/{sesi}', [NFCAdminController::class, 'sesiUpdate'])->name('update');
+        Route::post('/{sesi}/activate', [NFCAdminController::class, 'sesiActivate'])->name('activate');
+        Route::post('/{sesi}/deactivate', [NFCAdminController::class, 'sesiDeactivate'])->name('deactivate');
+        Route::delete('/{sesi}', [NFCAdminController::class, 'sesiDestroy'])->name('destroy');
+    });
+
+    // Absensi Reports
+    Route::prefix('absensi')->name('absensi.')->group(function () {
+        Route::get('/', [NFCAdminController::class, 'absensiIndex'])->name('index');
+        Route::get('/sesi/{sesi}', [NFCAdminController::class, 'absensiBySesi'])->name('by-sesi');
+    });
+
+    // NFC Scanner (untuk testing tanpa device)
+    Route::get('/scanner', [NFCAdminController::class, 'scanner'])->name('scanner');
 });

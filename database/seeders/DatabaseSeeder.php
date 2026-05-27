@@ -30,5 +30,8 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('User37@#'),
             'role' => 'user',
         ]);
+
+        // Seed NFC System
+        $this->call(NFCSistemSeeder::class);
     }
 }

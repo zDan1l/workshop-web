@@ -25,7 +25,11 @@
       "Bash(curl -I http://127.0.0.1:8000/)",
       "Bash(curl *)",
       "Bash(netstat -ano)",
-      "Bash(findstr :8000)"
+      "Bash(findstr :8000)",
+      "Bash(awk '{print $3}')",
+      "Bash(awk '{print $2}')",
+      "Bash(grep -E \"nfc-admin/\\(dosen|kelas|mahasiswa|sesi\\)$\")",
+      "Bash(awk '{print $1, $2}')"
     ]
   }
 }

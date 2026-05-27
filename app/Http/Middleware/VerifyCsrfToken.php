@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        '/sse/antrian', // Server-Sent Events endpoint
+        '/sse/antrian',      // Server-Sent Events endpoint
+        'api/nfc/*',         // NFC API endpoints
     ];
 }

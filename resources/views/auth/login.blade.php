@@ -34,7 +34,7 @@
 @endpush
 
 @section('content')
-<div class="col-lg-4 mx-auto">
+<div class="col-lg-5 mx-auto">
     <div class="auth-form-light text-left p-5">
         <div class="brand-logo">
             <img src="{{ asset('assets/images/logo.svg') }}">
